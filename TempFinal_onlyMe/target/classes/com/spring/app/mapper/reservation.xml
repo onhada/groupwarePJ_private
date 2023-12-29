@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- ==== #29. mapper 기본설정 ==== -->
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+<!-- ==== #29. 루트 엘리먼트 & 네임스페이스 설정(프로젝트 전체내에서 유일해야 한다.) ==== -->
+<mapper namespace="reservation">
+
+
+	<!-- === 자원카테고리 목록 가져오기 === --> 
+	<resultMap type="HashMap" id="getResourceCategoryList_Map">
+	    <result property="resourceCategoryId" 		column="resourceCategoryId" 	javaType="String" />
+	    <result property="resourceCategoryName" 	column="resourceCategoryName" 	javaType="String" />
+	</resultMap>
+	<select id="getResourceCategoryList" resultMap="getResourceCategoryList_Map">
+		select resourceCategoryId, resourceCategoryName
+		from tbl_resourceCategory
+		where isDelete = 0
+		order by resourceCategoryId asc
+	</select>
+	
+	
+	<!-- === 자원 목록 가져오기 === --> 
+	<resultMap type="HashMap" id="getResourceList_Map">
+	    <result property="resourceId" 				column="resourceId" 			javaType="String" />
+	    <result property="fk_resourceCategoryId" 	column="fk_resourceCategoryId" 	javaType="String" />
+	    <result property="resourceName" 			column="resourceName" 			javaType="String" />
+	    <result property="description" 				column="description" 			javaType="String" />
+	    <result property="imageFile" 				column="imageFile" 				javaType="String" />
+	    <result property="status" 					column="status" 				javaType="String" />
+	    <result property="isReturn" 				column="isReturn" 				javaType="String" />
+	</resultMap>
+	<select id="getResourceList" parameterType="HashMap" resultMap="getResourceList_Map">
+		select resourceId, fk_resourceCategoryId, resourceName, description, imageFile, status, isReturn
+		from tbl_resource
+		where isDelete = 0 and fk_resourceCategoryId = #{resourceCategoryId}
+		order by resourceId asc		
+	</select>
+	
+	
+	<!-- === 자원카테고리 정보 가져오기 === --> 
+	<resultMap type="HashMap" id="getResourceCategoryInfo_map">
+	    <result property="resourceCategoryId" 		column="resourceCategoryId" 	javaType="String" />
+	    <result property="resourceCategoryName" 	column="resourceCategoryName" 	javaType="String" />
+	    <result property="description" 				column="description" 			javaType="String" />
+	    <result property="imageFile" 				column="imageFile" 				javaType="String" />
+	</resultMap>
+	<select id="getResourceCategoryInfo" parameterType="HashMap" resultMap="getResourceCategoryInfo_map">
+		select resourceCategoryId, resourceCategoryName, description, imageFile
+		from tbl_resourceCategory
+		where isDelete = 0 and resourceCategoryId = #{resourceCategoryId}
+		order by resourceCategoryId asc
+	</select>
+	
+	
+	
+	
+	
+	
+</mapper>	
