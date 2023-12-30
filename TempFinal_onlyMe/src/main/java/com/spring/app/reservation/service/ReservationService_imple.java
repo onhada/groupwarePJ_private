@@ -1,5 +1,6 @@
 package com.spring.app.reservation.service;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -45,6 +46,45 @@ public class ReservationService_imple implements ReservationService {
 	public Map<String, Object> getResourceCategoryInfo(Map<String, Object> paraMap) {
 		Map<String, Object> resourceCategoryInfo_map = dao.getResourceCategoryInfo(paraMap);
 		return resourceCategoryInfo_map;
+	}
+
+	
+	// === 자원 정보 가져오기 === //
+	@Override
+	public Map<String, Object> getResourceInfo(Map<String, Object> paraMap) {
+		Map<String, Object> resourceInfo_map = dao.getResourceInfo(paraMap);
+		return resourceInfo_map;
+	}
+
+
+	// === 모든 자원 목록 가져오기 === //
+	@Override
+	public List<Map<String, String>> getAllResourceList() {
+		List<Map<String, String>> allResourceList =  dao.getAllResourceList();
+		return allResourceList;
+	}
+
+
+	// === 해당일시에 등록된 예약이 있는지 조회 === //
+	@Override
+	public List<Map<String, String>> selectReservation(Map<String, Object> paraMap) {
+		List<Map<String, String>> existReservationList = dao.selectReservation(paraMap);
+		return existReservationList;
+	}
+
+
+	// === 예약하기 (자원예약 table에 insert) === //
+	@Override
+	public void addReservation(Map<String, Object> paraMap) {
+		dao.addReservation(paraMap);
+	}
+
+
+	// === 승인여부, 반납필수여부 알아오기 === //
+	@Override
+	public Map<String, Object> getResourceOption(String resourceId) {
+		Map<String, Object> option_map = dao.getResourceOption(resourceId);
+		return option_map;
 	}
 	
 }

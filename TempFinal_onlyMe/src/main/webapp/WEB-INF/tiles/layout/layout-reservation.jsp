@@ -79,19 +79,19 @@ $(document).ready(function() {
 			prevText : "이전달",
 			nextText : "다음달",
 			currentText : "오늘",
-			monthNames : [ "1월", "2월", "3월", "4월", "5월", "6월",
-					"7월", "8월", "9월", "10월", "11월", "12월" ],
-			monthNamesShort : [ "1월", "2월", "3월", "4월", "5월", "6월",
-					"7월", "8월", "9월", "10월", "11월", "12월" ],
-			dayNames : [ "일요일", "월요일", "화요일", "수요일", "목요일", "금요일",
-					"토요일" ],
+			monthNames : [ "1월", "2월", "3월", "4월", "5월", "6월", "7월", "8월", "9월", "10월", "11월", "12월" ],
+			monthNamesShort : [ "1월", "2월", "3월", "4월", "5월", "6월", "7월", "8월", "9월", "10월", "11월", "12월" ],
+			dayNames : [ "일요일", "월요일", "화요일", "수요일", "목요일", "금요일", "토요일" ],
 			dayNamesShort : [ "일", "월", "화", "수", "목", "금", "토" ],
 			dayNamesMin : [ "일", "월", "화", "수", "목", "금", "토" ],
 			weekHeader : "주",
-			dateFormat : "yy-mm-dd", // 여기서 포맷을 내가 원하는데로 설정해주니 적용되었음... 나는 여기다 적어서 사용하는걸로.. 
+			dateFormat : "yy-mm-dd", 
+	           changeYear: true,        //콤보박스에서 년 선택 가능
+	           changeMonth: true,       //콤보박스에서 월 선택 가능  
 			firstDay : 0,
 			isRTL : false,
-			showMonthAfterYear : true,
+	           showOtherMonths: true,   //빈 공간에 현재월의 앞뒤월의 날짜를 표시
+			showMonthAfterYear : true,	//년도 먼저 나오고, 뒤에 월 표시
 			yearSuffix : "년"
 		};
 		datepicker.setDefaults(datepicker.regional.ko);
@@ -172,7 +172,7 @@ $(document).ready(function() {
 	 });// 생년월일에 마우스로 달력에 있는 날짜를 선택한 경우 이벤트 처리 한것 
 	 */
 
-
+	
 })// end of $(document).ready(function(){})-------------------------
 
 
@@ -187,15 +187,143 @@ function layerClose(id) {
 <%-- 예약하기 모달 창 열기 --%>
 function resourceReserve() {
 	if ($("div#resource_reservation_layer").hasClass("hide") === true) { // 옵션드롭다운이 보이지 않는 중일 경우
-		$("div#resource_reservation_layer").removeClass("hide")
+		$("div#resource_reservation_layer").removeClass("hide");
+		
+		$.ajax({
+        	url : "<%=ctxPath%>/reservation/getResourceList.gw",
+			type : "get",
+			data : { },
+			dataType : "json",
+			async : false,
+			success : function(json) {
+			 //	console.log(JSON.stringify(json));
+				let html = "";
+				if(json.length > 0) {
+					$.each(json, function(index, item){
+						html += "<option value='"+item.resourceId+"'>"+item.resourceName+"</option>"; 
+					});
+				}
+				
+				$("select#resource_list_select").append(html);
+			},
+			error : function(request, status, error) {
+				alert("code: " + request.status + "\n" + "message: " + request.responseText + "\n" + "error: " + error);
+			}
+		});	
 	}
-	/* else{ // 옵션드롭다운이 보이는 중일 경우 
-		$("div#m_write_option_detail").addClass("hide")
-	} */
+}// end of function resourceReserve() ---------------------
+
+
+<%-- 예약하기 제출하는 폼  --%>
+function addReservation(){
+	
+	console.log( $("select#resource_list_select").val()  );
+	console.log( $("input#reservationDate").val()+ " " +$("select#rsvStartDayTime").val()  );
+	console.log( $("input#reservationDate").val()+ " " +$("select#rsvEndDayTime").val() );
+	console.log( $("textarea#rsvReason").val()  );
+	
+	
+	// ---------- 예약일시가 올바른지 확인 시작 ---------- //
+	let rsvStartTime = $("select#rsvStartDayTime").val();
+	let rsvEndTime = $("select#rsvEndDayTime").val();
+	
+	let rsvStartHour = rsvStartTime.substring(0, rsvStartTime.indexOf(':'));
+	let rsvEndHour = rsvEndTime.substring(0, rsvEndTime.indexOf(':'));
+	
+	if(rsvStartHour - rsvEndHour > 0){
+		alert("예약 시간이 올바르지 않습니다.");
+		return;
+	}
+	else if(rsvStartHour - rsvEndHour == 0){
+		let rsvStartMinute = rsvStartTime.substring( rsvStartTime.indexOf(':')+1, rsvStartTime.indexOf(':', rsvStartTime.indexOf(':')+1) );
+		let rsvEndMinute = rsvEndTime.substring(rsvEndTime.indexOf(':')+1, rsvEndTime.indexOf(':', rsvStartTime.indexOf(':')+1) );
+		
+		if(rsvStartMinute - rsvEndMinute >= 0){
+			alert("예약 시간이 올바르지 않습니다.");
+			return;
+		}
+	}
+	// ---------- 예약일시가 올바른지 확인 끝 ---------- //
+	
+	if( $("textarea#rsvReason").val().trim() == "" ){ // 예약사유를 입력하지 않았을 경우
+		alert("예약 사유가 없습니다.");
+		return;
+	}
+	
+	
+	
+	var rsvStartDayTime = $("input#reservationDate").val() + " " + $("select#rsvStartDayTime").val();
+	var rsvEndDayTime = $("input#reservationDate").val() + " " + $("select#rsvEndDayTime").val();
+	
+	$.ajax({
+    	url : "<%=ctxPath%>/reservation/addReservation.gw",
+		type : "get",
+		data : {"resourceId":$("select#resource_list_select").val(),	// 자원id
+				"rsvStartDayTime":rsvStartDayTime,						// 예약시작일시
+				"rsvEndDayTime":rsvEndDayTime,							// 예약종료일시
+				"rsvReason":$("textarea#rsvReason").val()},				// 사용용도
+		dataType : "json",
+		async : false,
+		success : function(json) {
+			
+			if(json.result == 1){// 예약 성공한 경우 
+				alert("예약되었습니다.");
+				$("div#resource_reservation_layer").addClass("hide");
+				window.location.reload();
+			}
+			else{// 해당 일시에 등록된 예약이 존재해 예약 실패한 경우
+				alert("등록된 예약이 존재합니다.");
+			}
+			
+		},
+		error : function(request, status, error) {
+			alert("code: " + request.status + "\n" + "message: " + request.responseText + "\n" + "error: " + error);
+		}
+	});	
+	
 }
 
 
+/* 수정필) 이전날, 다음날, 오늘 누르면 바로 이동한느 것?  
+function moveDate(type){
+		
+	const today = new Date();                               // 오늘 날짜
+    let datePicker = $(".datepicker");                      // DatePicker 에서 선택된 날짜
+    let datePickerToDate = new Date(datePicker.val());      // DatePicker 에서 선택되어 Date 타입으로 변경된 날짜
 
+    // [CASE1] 이전 버튼을 눌렀을 경우
+    if (type == "prev") {
+    	alert("gdgd");
+        datePickerToDate.setDate(datePickerToDate.getDate() - 1);       // DatePicker 날짜를 하루 뺍니다.
+        datePicker.val(datePickerFormatting(datePickerToDate));         // 화면상에 보이는 DatePicker 날짜를 변경합니다.
+        $('#moveDate').attr("disabled", false);                          // 이전 버튼을 누르면 disalbed가 사라집니다.
+    }
+    // [CASE2] 이후 버튼을 눌렀을 경우
+    else if (type == "next") {
+        // [CASE2-1] 오늘 이후 날짜는 처리하지 않습니다. (년 월 일에 비교를 합니다)
+        if (datePickerToDate.getFullYear() === today.getFullYear()
+            && datePickerToDate.getMonth() === today.getMonth()
+            && datePickerToDate.getDate() === today.getDate()) {
+            alert('오늘 이후 날짜는 선택할 수 없습니다.');
+						$('#postDate').attr("disabled", true)                       // 이후날짜 버튼 disabled
+        }
+        // [CASE2-2] 오늘 이후 날짜는 변경합니다.
+        else {
+            datePickerToDate.setDate(datePickerToDate.getDate() + 1);   // DatePicker 날짜를 하루 더합니다.
+            datePicker.val(datePickerFormatting(datePickerToDate));          // 화면상에 보이는 DatePicker 날짜를 변경합니다.
+        }
+    }
+    
+    
+    // yyyy.mm.dd(요일) 형식으로 포맷팅
+	const datePickerFormatting = (date) => {
+	    return date.getFullYear() + '.' + (date.getMonth() + 1).toString().padStart(2, '0') + '.' + date.getDate().toString().padStart(2, '0') + '(' + ['일', '월', '화', '수', '목', '금', '토'][date.getDay()] + ')';
+	}
+}	
+*/	  
+    
+
+ 
 </script>
 
 
@@ -264,6 +392,14 @@ function resourceReserve() {
 
 		<%-- ========== 예약하기 모달 시작 ========== --%>
 		<div id="resource_reservation_layer" class="booking_layer_div hide">
+		
+	<%-- 	<c:forEach var="resourceCategory" items="${requestScope.resourceCategoryList}">
+		<input type="hidden" id="resourceCategoryId" val="${resourceCategory.resourceCategoryId}"/>	
+		</c:forEach>
+										
+		 --%>
+		
+		
 			<div class="layer_box" style="z-index: 1005;">
 				<div class="layer_box rs-booking-layer popup1 " style="margin-left: -221px; margin-top: -193.5px; display: block; z-index: 1005;">
 					<form id="booking_resource_frm">
@@ -275,7 +411,32 @@ function resourceReserve() {
 								</dt>
 								<dd>
 									<select id="resource_list_select" name="resource_no[]" class="select-box" style="width: 270px" onchange="bookingMain.selectResource();">
-										<optgroup label="회의실" cate_no="1163" resource_type="T">
+									<%-- 
+									<c:if test="${not empty requestScope.resourceCategoryList || fn:length(requestScope.resourceCategoryList) > 0}">
+									<c:forEach var="resourceCategory" items="${requestScope.resourceCategoryList}">
+										<optgroup label="${resourceCategory.resourceCategoryName}" id="resourceCategory" value="${resourceCategory.resourceCategoryId}" resource_type="T">
+										
+											<!-- 조건을 줘야하나..? -->
+											<c:if test="${not empty requestScope.resourceList || fn:length(requestScope.resourceList) > 0}">
+											<c:forEach var="resource" items="${requestScope.resourceList}">
+												<option value="${resource.resourceId}">${resource.resourceName}</option>
+												<!-- <option value="1390">회의실 B2</option>
+												<option value="1393">회의실 A1</option>
+												<option value="1394">회의실 M5</option> -->
+											</c:forEach>
+											</c:if>	
+											
+										</optgroup>
+									</c:forEach>
+									</c:if>
+															
+										
+									 --%>	
+										
+										
+										
+										
+										<!-- <optgroup label="회의실" cate_no="1163" resource_type="T">
 											<option value="1390">회의실 B2</option>
 											<option value="1393">회의실 A1</option>
 											<option value="1394">회의실 M5</option>
@@ -288,6 +449,7 @@ function resourceReserve() {
 											<option value="1396">콘도1(제주)</option>
 											<option value="1397">콘도2(속초)</option>
 										</optgroup>
+										 -->
 									</select>
 								</dd>
 							</dl>
@@ -298,10 +460,11 @@ function resourceReserve() {
 									</dt>
 									<dd>
 										<div class="fl">
-											<input type="text" name="date" id="date" class="datepicker" style="width: 147px;">
+											<input type="text" name="reservationDate" id="reservationDate" class="datepicker" style="width: 147px;">
 											<!-- <input type="text" name="date" id="booking_date_in_layer" onchange="bookingMain.selectResource();" class="datepicker hasDatepicker" style="width: 147px;" value="2023-11-30">
-									 -->
+									 -->	<label for="reservationDate">
 											<img class="ui-datepicker-trigger icon month" src="<%=ctxPath%>/resources/image/icon/sp_icon.png" alt="예약 날짜 선택" title="예약 날짜 선택">
+											</label>
 										</div>
 									</dd>
 								</dl>
@@ -311,14 +474,14 @@ function resourceReserve() {
 									</dt>
 									<dd class="after">
 										<div class="fl">
-											<select id="start" class="select-box" style="width: 125px;">
+											<select id="rsvStartDayTime" class="select-box" style="width: 125px;">
 												<c:forEach var="item" varStatus="i" begin="0" end="23" step="1">
 													<option value="${item}:00:00">${item}:00</option>
 													<option value="${item}:30:00">${item}:30</option>
 												</c:forEach>
 											</select>
 											~
-											<select id="end" class="select-box" style="width: 125px;">
+											<select id="rsvEndDayTime" class="select-box" style="width: 125px;">
 												<c:forEach var="item" varStatus="i" begin="0" end="23" step="1">
 													<option value="${item}:00:00">${item}:00</option>
 													<option value="${item}:30:00">${item}:30</option>
@@ -333,35 +496,12 @@ function resourceReserve() {
 									<label for="">사용 용도</label>
 								</dt>
 								<dd class="after">
-									<textarea class="rs-layer-textarea" name="booking_reason"></textarea>
-								</dd>
-							</dl>
-							<dl class="after hide" id="add_resource_dl">
-								<dt>
-									<label for="">복수 자원</label>
-								</dt>
-								<dd class="after">
-									<ul class="multi-select" id="resource_list_layer">
-										<li>
-											<label><input type="checkbox" name="resource_no[]" value="1393"> <span class="img">
-													<img src="/static/ui/images/resource/default03.jpeg" alt="">
-												</span> <span>회의실 A1</span></label>
-										</li>
-										<li>
-											<label><input type="checkbox" name="resource_no[]" value="1394"> <span class="img">
-													<img src="/static/ui/images/resource/default03.jpeg" alt="">
-												</span> <span>회의실 M5</span></label>
-										</li>
-									</ul>
+									<textarea class="rs-layer-textarea" id="rsvReason"></textarea>
 								</dd>
 							</dl>
 						</div>
-						<p>
-							<!--  	<button class="weakblue" type="button" id="add_resource_btn"
-				onclick="bookingMain.showAddResourceList();">+ 추가 자원 예약</button>	-->
-						</p>
 						<div class="layer_button">
-							<button type="button" class="btn_variables" onclick="bookingMain.addBooking();">저장</button>
+							<button type="button" class="btn_variables" onclick="addReservation();">저장</button>
 							<button type="button" class="reservation_layer_close" id="resource_reservation" onclick="layerClose(this.id);">취소</button>
 						</div>
 						<a href="javascript:void(0)" class="icon btn_closelayer reservation_layer_close" id="resource_reservation" onclick="layerClose(this.id);" title="레이어 닫기">
@@ -539,16 +679,15 @@ function resourceReserve() {
 		<!-- # 자원설명 모달 시작 -->
 		<div id="resource_detail_layer" class="booking_layer_div hide">
 			<div class="layer_box" style="z-index: 1005;">
-				<div class="layer_box rs-detail-layer popup16"
-					style="margin-left: -411px; margin-top: -300.5px; display: block; z-index: 1005;">
+				<div class="layer_box rs-detail-layer popup16" style="margin-left: -411px; margin-top: -300.5px; display: block; z-index: 1005;">
 					<div class="title_layer text_variables">자원 설명</div>
 					<div class="scroll ta_c">
 						<div class="rs-detail-img">
-							<img src="<%= ctxPath%>/img/conferenceroomA1.png" alt="">
+							<img class="rs-imgFile" src="" alt="">
 						</div>
-						<div class="rs-name">회의실 A1</div>
-						<div class="rs-detail-text">회의실 A1</div>
-		
+						<div class="rs-name"></div>
+						<div class="rs-detail-text"></div>
+						<!-- 
 						<div class="rs-tag after">
 							<div class="title">
 								<strong>자원 속성</strong>
@@ -558,17 +697,17 @@ function resourceReserve() {
 								<li>수요일 이용 불가</li>
 							</ul>
 						</div>
+						-->
 					</div>
 					<div class="layer_button">
 						<button type="button" class="btn_variables booking_layer_close" id="resource_detail" onclick="layerClose(this.id);">확인</button>
 					</div>
-					<a href="javascript:void(0)"
-						class="icon btn_closelayer booking_layer_close" id="resource_detail" onclick="layerClose(this.id);" title="레이어 닫기"><span
-						class="blind">닫기</span></a>
+					<a href="javascript:void(0)" class="icon btn_closelayer booking_layer_close" id="resource_detail" onclick="layerClose(this.id);" title="레이어 닫기">
+						<span class="blind">닫기</span>
+					</a>
 				</div>
 			</div>
-			<div class="layer_back"
-				style="position: fixed; width: 100%; height: 100%; z-index: 1000; background-color: rgb(0, 0, 0); opacity: 0.3; top: 0px; left: 0px; margin: 0px; padding: 0px;"></div>
+			<div class="layer_back" style="position: fixed; width: 100%; height: 100%; z-index: 1000; background-color: rgb(0, 0, 0); opacity: 0.3; top: 0px; left: 0px; margin: 0px; padding: 0px;"></div>
 		</div>
 		<!-- # 자원설명 모달 끝 -->
 

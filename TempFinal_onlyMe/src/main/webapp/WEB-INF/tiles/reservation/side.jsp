@@ -60,7 +60,7 @@ function toggleShowHide(id){
 					<c:if test="${not empty requestScope.resourceCategoryList || fn:length(requestScope.resourceCategoryList) > 0}">
 					<c:forEach var="resourceCategory" items="${requestScope.resourceCategoryList}">
 						<li class="menu-item only">
-							<a class="link gt-pl-10" href="<%= ctxPath%>/reservation/resourceList.gw?resourceCategoryId=${resourceCategory.resourceCategoryId}" title="${resourceCategory.resourceCategoryName}">
+							<a class="link gt-pl-10" href="<%= ctxPath%>/reservation/reservationResource.gw?resourceCategoryId=${resourceCategory.resourceCategoryId}" title="${resourceCategory.resourceCategoryName}">
 								<span class="link-prefix-icon">
 									<i class="gis gi-category"></i>
 								</span>

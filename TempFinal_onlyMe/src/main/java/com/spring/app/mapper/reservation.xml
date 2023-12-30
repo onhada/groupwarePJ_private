@@ -54,6 +54,84 @@
 	</select>
 	
 	
+	<!-- === 자원 정보 가져오기 === --> 
+	<resultMap type="HashMap" id="getResourceInfo_map">
+	    <result property="resourceId" 				column="resourceId" 			javaType="String" />
+	    <result property="fk_resourceCategoryId" 	column="fk_resourceCategoryId" 	javaType="String" />
+	    <result property="resourceName" 			column="resourceName" 			javaType="String" />
+	    <result property="description" 				column="description" 			javaType="String" />
+	    <result property="imageFile" 				column="imageFile" 				javaType="String" />
+	</resultMap>
+	<select id="getResourceInfo" parameterType="HashMap" resultMap="getResourceInfo_map">
+		select resourceId, fk_resourceCategoryId, resourceName, description, imageFile
+		from tbl_resource
+		where isDelete = 0 and resourceId = #{resourceId}
+		order by resourceId asc
+	</select>
+	
+	
+	<!-- === 모든 자원 목록 가져오기 === -->
+	<resultMap type="HashMap" id="getAllResourceList_map">
+	    <result property="resourceId" 				column="resourceId" 			javaType="String" />
+	    <result property="fk_resourceCategoryId" 	column="fk_resourceCategoryId" 	javaType="String" />
+	    <result property="resourceName" 			column="resourceName" 			javaType="String" />
+	</resultMap>
+	<select id="getAllResourceList" resultMap="getAllResourceList_map">
+		select resourceId, fk_resourceCategoryId, resourceName
+		from tbl_resource
+		where isDelete = 0 
+		order by fk_resourceCategoryId asc, resourceId asc
+	</select>
+	
+	
+	<!-- === 해당일시에 등록된 예약이 있는지 조회 === -->
+	<resultMap type="HashMap" id="selectReservation_map">
+	    <result property="rsvResourceId"		column="rsvResourceId" 			javaType="String" />
+	</resultMap>
+	<select id="selectReservation" parameterType="HashMap" resultMap="selectReservation_map">
+		<![CDATA[
+		select rsvResourceId
+		from tbl_reservationResource
+		where fk_resourceId = #{resourceId} 
+		      and (
+		              ( #{rsvStartDayTime} <= rsvStartDayTime and ( rsvStartDayTime <= #{rsvEndDayTime} and #{rsvEndDayTime} <= rsvEndDayTime ) )
+		           or ( rsvStartDayTime <= #{rsvStartDayTime} and  #{rsvEndDayTime} <= rsvEndDayTime )
+		           or ( (rsvStartDayTime <= #{rsvStartDayTime} and #{rsvStartDayTime} <= rsvEndDayTime) and rsvEndDayTime <= #{rsvEndDayTime} )
+		           or ( #{rsvStartDayTime} <= rsvStartDayTime and rsvEndDayTime <= #{rsvEndDayTime} )
+		          )	
+		]]>          	
+	</select>
+	
+	
+	<!-- === 예약하기 (자원예약 table에 insert) === -->
+	<insert id="addReservation" parameterType="HashMap">
+		<!-- 원메일쓰기인 경우 -->
+		<if test='orgMailId.equals("0")'> 
+			insert into tbl_mail(mailId, subject, mailContent, sendDay, orgMailId)
+			values(mailSeq.nextval, #{subject}, #{mailContent}, sysdate, default)		 
+		</if>
+		<!-- 답장메일쓰기인 경우 -->
+		<if test='!orgMailId.equals("0")'>
+			insert into tbl_mail(mailId, subject, mailContent, sendDay, orgMailId)
+			values(mailSeq.nextval, #{subject}, #{mailContent}, sysdate, #{orgMailId})
+		</if>
+	</insert>
+	
+	
+	<!-- === 승인여부, 반납필수여부 알아오기 === -->
+	<resultMap type="HashMap" id="getResourceOption_map">
+	    <result property="resourceId" 				column="resourceId" 			javaType="String" />
+	    <result property="fk_resourceCategoryId" 	column="fk_resourceCategoryId" 	javaType="String" />
+	    <result property="resourceName" 			column="resourceName" 			javaType="String" />
+	    <result property="description" 				column="description" 			javaType="String" />
+	    <result property="imageFile" 				column="imageFile" 				javaType="String" />
+	</resultMap>
+	<select id="getResourceOption" parameterType="String" resultMap="getResourceOption_map">
+		select status, isReturn
+		from tbl_resource
+		where resourceId = #{resourceId}
+	</select>
+	
 	
 	
 	
