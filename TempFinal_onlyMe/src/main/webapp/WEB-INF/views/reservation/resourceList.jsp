@@ -22,9 +22,6 @@ $(document).ready(function() {
 	<%-- 자원설명 모달 열기 --%>
 	$("span.resource_detail_view").click(function(e) {
 		if ($("div#resource_detail_layer").hasClass("hide") == true) {
-			console.log($(e.target).attr("resourceId"));
-			// 이제 여기 에이작스 쓰면 될듯??
-			
 			$.ajax({
 	        	url : "<%=ctxPath%>/reservation/getResourceInfo.gw",
 				type : "get",
@@ -32,29 +29,24 @@ $(document).ready(function() {
 				dataType : "json",
 				async : false,
 				success : function(json) {
-					
-					
-					
-					
-					const mailType = $("input[name='mailType']").val();
-					if(mailType != 6){ // 개인편지함이 아닐 경우 
-						location.href = `<%= ctxPath%>/mail/mailList.gw?mailType=\${mailType}`;
-					}
-					else{ // 개인편지함일 경우 
-						const personalMailboxTypeId = $("input[name='personalMailboxTypeId']").val();
-						location.href = `<%= ctxPath%>/mail/mailList.gw?mailType=\${mailType}&personalMailboxTypeId=\${personalMailboxTypeId}`;
-					}
+					$("div#resource_detail_layer").find(".rs-name").text(json.resourceInfo_map.resourceName);
+					$("div#resource_detail_layer").find(".rs-detail-text").text(json.resourceInfo_map.description);
+					$("div#resource_detail_layer").find(".rs-imgFile").attr("src", "<%= ctxPath%>/resources/image/reservation/"+json.resourceInfo_map.imageFile);
 				},
 				error : function(request, status, error) {
 					alert("code: " + request.status + "\n" + "message: " + request.responseText + "\n" + "error: " + error);
 				}
 			});
 			
-			
 			$("div#resource_detail_layer").removeClass("hide");
-			
 		}
 	});
+	
+	
+	
+	
+	
+	
 })// end of $(document).ready(function(){})-------------------------
 
 
@@ -73,7 +65,7 @@ $(document).ready(function() {
 	<div class="setting_title">
 		<h3>
 			${requestScope.resourceCategoryInfo_map.resourceCategoryName}
-			<span class="show-rs-info category_detail_view" r_type="C" no="287">i</span>
+			<span class="show-rs-info category_detail_view">i</span>
 		</h3>
 	</div>
 	<div class="content_inbox" style="overflow-y: hidden;">
@@ -84,33 +76,40 @@ $(document).ready(function() {
 				<input type="hidden" value="" id="booking_search_name_hidden">
 			</ul>
 			<!-- // 검색이 존재할 경우 -->
+			
+		<!-- 이거 쓸거면 맞게 수정해 수정필 
 			<input type="hidden" value="287" id="category_no_hidden">
 			<input type="hidden" value="T" id="resource_type_hidden">
+		 -->	
 			<div class="cal_head" id="cal_head_fixed_div" style="padding-right: 28px; padding-left: 20px;">
+				
 				<div id="cal_head_fixed_div_area">
-					<button type="button" class="icon directleft" onclick="bookingResourceListTime.moveDate('previous');">
+					<button type="button" class="icon directleft" id="moveDate" onclick="moveDate('prev');">
 						<span class="blind">전일 이동</span>
 					</button>
-					<input type="text" class="num datepicker hasDatepicker" id="booking_date" value="2023-12-29" style="width: 110px; border: none; margin-right: 5px;" readonly="">
-					<span id="week_name_span">(금)</span>
-					<img class="ui-datepicker-trigger icon month" src="/static/ui/images/bar_bg.png" alt="예약 날짜 선택" title="예약 날짜 선택">
-					<button type="button" class="icon directright" onclick="bookingResourceListTime.moveDate('next');">
+					<input type="text" id="viewReservationDate" class="num datepicker" style="width: 110px; border: none; margin-right: 5px;" readonly="">
+					<!-- <span id="week_name_span">(금)</span> -->
+					<label for="viewReservationDate"> 
+						<img class="ui-datepicker-trigger icon month" src="<%=ctxPath%>/resources/image/icon/sp_icon.png" alt="예약 날짜 선택" title="예약 날짜 선택">
+					</label>
+					<button type="button" class="icon directright" onclick="moveDate('next');">
 						<span class="blind">익일 이동</span>
 					</button>
-					<button type="button" class="today-btn vt" onclick="bookingResourceListTime.setToday();">오늘</button>
+					<button type="button" class="today-btn vt" onclick="moveDate('today');">오늘</button>
 				</div>
+				
 				<div id="tbl_head_fixed_div_area">
 					<table class="rs-cal-table" id="booking_clone_tbl">
 						<colgroup id="resource_list_colgroup">
 							<col width="80">
-							<col width="">
-							<col width="">
-							<col width="">
+							<c:forEach var="item" varStatus="i" begin="1" end="${fn:length(requestScope.resourceList)}" step="1">
+								<col width="">
+							</c:forEach>
 							<col width="80">
 						</colgroup>
 						<tbody>
 							<tr>
-							
+
 								<td style="border-bottom: none;">
 									<table>
 										<thead class="booking_resource_img_top">
@@ -128,40 +127,41 @@ $(document).ready(function() {
 										</thead>
 									</table>
 								</td>
-								
+
 								<%-- 자원 목록 가져오기 --%>
 								<c:if test="${not empty requestScope.resourceList || fn:length(requestScope.resourceList) > 0}">
-								<c:forEach var="resource" items="${requestScope.resourceList}">
-									<td style="border-bottom: none;">
-										<table class="rs-resource-tbl" no="405">
-											<thead class="rs-view booking_resource_img_top">
-												<tr>
-													<th scope="col">
-														<span class="resource_name_span" title="${resource.resourceName}">${resource.resourceName}</span>
-														<span class="show-rs-info resource_detail_view" r_type="R" resourceId="${resource.resourceId}">i</span>
-													</th>
-												</tr>
-												<tr class="rs-bg">
-													<td class="">
-														<img src="<%= ctxPath%>/resources/image/reservation/${resource.imageFile}" alt="">
-													</td>
-												</tr>
-												<tr>
-													<td class="rs-divider-td">
-														<hr class="rs-divider">
-													</td>
-												</tr>
-											</thead>
-										</table>
-									</td>
-								</c:forEach>
+									<c:forEach var="resource" items="${requestScope.resourceList}">
+										<td style="border-bottom: none;">
+											<table class="rs-resource-tbl" resourceId="${resource.resourceId}">
+												<thead class="rs-view booking_resource_img_top">
+													<tr>
+														<th scope="col">
+															<span class="resource_name_span" title="${resource.resourceName}">${resource.resourceName}</span>
+															<span class="show-rs-info resource_detail_view" r_type="R" resourceId="${resource.resourceId}">i</span>
+														</th>
+													</tr>
+													<tr class="rs-bg">
+														<td class="">
+															<img src="<%= ctxPath%>/resources/image/reservation/${resource.imageFile}" alt="">
+														</td>
+													</tr>
+													<tr>
+														<td class="rs-divider-td">
+															<hr class="rs-divider">
+														</td>
+													</tr>
+												</thead>
+											</table>
+										</td>
+									</c:forEach>
 								</c:if>
-								
+
 							</tr>
 						</tbody>
 					</table>
 				</div>
 			</div>
+			
 			<div class="rs-view" id="tbl_body_div" style="height: 435px;">
 				<div class="dropdown hide" id="showMoreResource">
 					<ul class="dropdown-menu" id="page_list_ul">
@@ -170,9 +170,9 @@ $(document).ready(function() {
 				<table class="rs-cal-table" id="booking_main_tbl">
 					<colgroup id="resource_list_colgroup">
 						<col width="80">
-						<col width="">
-						<col width="">
-						<col width="">
+						<c:forEach var="item" varStatus="i" begin="1" end="${fn:length(requestScope.resourceList)}" step="1">
+							<col width="">
+						</c:forEach>
 						<col width="80">
 					</colgroup>
 					<tbody>
@@ -188,6 +188,164 @@ $(document).ready(function() {
 									</tbody>
 								</table>
 							</td>
+							
+							<%-- 자원 목록 수만큼 테이블 만들기 --%>
+							<c:if test="${not empty requestScope.resourceList || fn:length(requestScope.resourceList) > 0}">
+								<c:forEach var="resource" items="${requestScope.resourceList}">
+									<td style="border-bottom: none;">
+										<table class="rs-resource-tbl" no="405">
+											<tbody class="marker-wrapper resource_selectable_area h1032 time_table_tbody_area ui-selectable">
+												<tr>
+													<td class="rs-dualmarker rs_time_before ui-selectee" time="0"></td>
+												</tr>
+												<tr class="rs-dualmarker-21">
+													<td class="rs_time_after ui-selectee" time="0"></td>
+												</tr>
+												<tr>
+													<td class="rs-dualmarker rs_time_before ui-selectee" time="1"></td>
+												</tr>
+												<tr class="rs-dualmarker-21">
+													<td class="rs_time_after ui-selectee" time="1"></td>
+												</tr>
+												<tr>
+													<td class="rs-dualmarker rs_time_before ui-selectee" time="2"></td>
+												</tr>
+												<tr class="rs-dualmarker-21">
+													<td class="rs_time_after ui-selectee" time="2"></td>
+												</tr>
+												<tr>
+													<td class="rs-dualmarker rs_time_before ui-selectee" time="3"></td>
+												</tr>
+												<tr class="rs-dualmarker-21">
+													<td class="rs_time_after ui-selectee" time="3"></td>
+												</tr>
+												<tr>
+													<td class="rs-dualmarker rs_time_before ui-selectee" time="4"></td>
+												</tr>
+												<tr class="rs-dualmarker-21">
+													<td class="rs_time_after ui-selectee" time="4"></td>
+												</tr>
+												<tr>
+													<td class="rs-dualmarker rs_time_before ui-selectee" time="5"></td>
+												</tr>
+												<tr class="rs-dualmarker-21">
+													<td class="rs_time_after ui-selectee" time="5"></td>
+												</tr>
+												<tr>
+													<td class="rs-dualmarker rs_time_before ui-selectee" time="6"></td>
+												</tr>
+												<tr class="rs-dualmarker-21">
+													<td class="rs_time_after ui-selectee" time="6"></td>
+												</tr>
+												<tr>
+													<td class="rs-dualmarker rs_time_before BKCP booking_detail_view ui-selectee" time="7" booking_no="1761" mode="start" rowspan="6" style="height: 132px;">관리자</td>
+												</tr>
+												<tr class="rs-dualmarker-21">
+													<td class="rs_time_after ui-selectee" time="7" style="display: none;"></td>
+												</tr>
+												<tr>
+													<td class="rs-dualmarker rs_time_before ui-selectee" time="8" style="display: none;"></td>
+												</tr>
+												<tr class="rs-dualmarker-21">
+													<td class="rs_time_after ui-selectee" time="8" style="display: none;"></td>
+												</tr>
+												<tr>
+													<td class="rs-dualmarker rs_time_before ui-selectee" time="9" style="display: none;"></td>
+												</tr>
+												<tr class="rs-dualmarker-21">
+													<td class="rs_time_after BKCP booking_detail_view ui-selectee" time="9" booking_no="1761" mode="end" style="display: none;">관리자</td>
+												</tr>
+												<tr>
+													<td class="rs-dualmarker rs_time_before ui-selectee" time="10"></td>
+												</tr>
+												<tr class="rs-dualmarker-21">
+													<td class="rs_time_after ui-selectee" time="10"></td>
+												</tr>
+												<tr>
+													<td class="rs-dualmarker rs_time_before ui-selectee" time="11"></td>
+												</tr>
+												<tr class="rs-dualmarker-21">
+													<td class="rs_time_after ui-selectee" time="11"></td>
+												</tr>
+												<tr>
+													<td class="rs-dualmarker rs_time_before ui-selectee" time="12"></td>
+												</tr>
+												<tr class="rs-dualmarker-21">
+													<td class="rs_time_after ui-selectee" time="12"></td>
+												</tr>
+												<tr>
+													<td class="rs-dualmarker rs_time_before ui-selectee" time="13"></td>
+												</tr>
+												<tr class="rs-dualmarker-21">
+													<td class="rs_time_after ui-selectee" time="13"></td>
+												</tr>
+												<tr>
+													<td class="rs-dualmarker rs_time_before ui-selectee" time="14"></td>
+												</tr>
+												<tr class="rs-dualmarker-21">
+													<td class="rs_time_after ui-selectee" time="14"></td>
+												</tr>
+												<tr>
+													<td class="rs-dualmarker rs_time_before ui-selectee" time="15"></td>
+												</tr>
+												<tr class="rs-dualmarker-21">
+													<td class="rs_time_after ui-selectee" time="15"></td>
+												</tr>
+												<tr>
+													<td class="rs-dualmarker rs_time_before ui-selectee" time="16"></td>
+												</tr>
+												<tr class="rs-dualmarker-21">
+													<td class="rs_time_after ui-selectee" time="16"></td>
+												</tr>
+												<tr>
+													<td class="rs-dualmarker rs_time_before ui-selectee" time="17"></td>
+												</tr>
+												<tr class="rs-dualmarker-21">
+													<td class="rs_time_after ui-selectee" time="17"></td>
+												</tr>
+												<tr>
+													<td class="rs-dualmarker rs_time_before ui-selectee" time="18"></td>
+												</tr>
+												<tr class="rs-dualmarker-21">
+													<td class="rs_time_after ui-selectee" time="18"></td>
+												</tr>
+												<tr>
+													<td class="rs-dualmarker rs_time_before ui-selectee" time="19"></td>
+												</tr>
+												<tr class="rs-dualmarker-21">
+													<td class="rs_time_after ui-selectee" time="19"></td>
+												</tr>
+												<tr>
+													<td class="rs-dualmarker rs_time_before ui-selectee" time="20"></td>
+												</tr>
+												<tr class="rs-dualmarker-21">
+													<td class="rs_time_after ui-selectee" time="20"></td>
+												</tr>
+												<tr>
+													<td class="rs-dualmarker rs_time_before ui-selectee" time="21"></td>
+												</tr>
+												<tr class="rs-dualmarker-21">
+													<td class="rs_time_after ui-selectee" time="21"></td>
+												</tr>
+												<tr>
+													<td class="rs-dualmarker rs_time_before ui-selectee" time="22"></td>
+												</tr>
+												<tr class="rs-dualmarker-21">
+													<td class="rs_time_after ui-selectee" time="22"></td>
+												</tr>
+												<tr>
+													<td class="rs-dualmarker rs_time_before ui-selectee" time="23"></td>
+												</tr>
+												<tr class="rs-dualmarker-21">
+													<td class="rs_time_after ui-selectee" time="23"></td>
+												</tr>
+											</tbody>
+										</table>
+									</td>
+								</c:forEach>
+							</c:if>	
+							
+							<!-- 
 							<td style="border-bottom: none;">
 								<table class="rs-resource-tbl" no="405">
 									<tbody class="marker-wrapper resource_selectable_area h1032 time_table_tbody_area ui-selectable">
@@ -637,7 +795,8 @@ $(document).ready(function() {
 										</tr>
 									</tbody>
 								</table>
-							</td>
+							</td> 
+							-->
 						</tr>
 					</tbody>
 				</table>

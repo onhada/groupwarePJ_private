@@ -8,6 +8,9 @@ import javax.annotation.Resource;
 import org.mybatis.spring.SqlSessionTemplate;
 import org.springframework.stereotype.Repository;
 
+import com.spring.app.common.domain.EmployeeVO;
+import com.spring.app.reservation.domain.ReservationVO;
+
 /** 
 * @FileName  : ReservationDAO_imple.java 
 * @Project   : TempFinal 
@@ -64,6 +67,14 @@ public class ReservationDAO_imple implements ReservationDAO {
 	}
 
 
+	// === 승인여부, 반납필수여부 알아오기 === //
+	@Override
+	public Map<String, Object> getResourceOption(String resourceId) {
+		Map<String, Object> option_map = sqlsession.selectOne("reservation.getResourceOption", resourceId);
+		return option_map;
+	}
+
+
 	// === 해당일시에 등록된 예약이 있는지 조회 === //
 	@Override
 	public List<Map<String, String>> selectReservation(Map<String, Object> paraMap) {
@@ -78,13 +89,39 @@ public class ReservationDAO_imple implements ReservationDAO {
 		sqlsession.insert("reservation.addReservation", paraMap);
 	}
 
-
-	// === 승인여부, 반납필수여부 알아오기 === //
+	
+	// === 나의 예약 목록 가져오기 === //
 	@Override
-	public Map<String, Object> getResourceOption(String resourceId) {
-		Map<String, Object> option_map = sqlsession.selectOne("reservation.getResourceOption", resourceId);
-		return option_map;
+	public List<ReservationVO> getmyReservationList(Map<String, Object> paraMap) {
+		List<ReservationVO> myReservationList = sqlsession.selectList("reservation.getmyReservationList", paraMap);
+		return myReservationList;
 	}
+
+
+	// === 자원예약 한 건에 대한 정보 가져오기 === //
+	@Override
+	public ReservationVO getReservationInfoDetail(Map<String, Object> paraMap) {
+		ReservationVO rsvvo = sqlsession.selectOne("reservation.getReservationInfoDetail", paraMap);
+		return rsvvo;
+	}
+
+
+	// === 사원 정보 가져오기 === //
+	@Override
+	public Map<String, String> getEmpInfo(Map<String, Object> paraMap) {
+		Map<String, String> empInfo_map = sqlsession.selectOne("reservation.getEmpInfo", paraMap);  
+		return empInfo_map;
+	}
+
+
+	// === 예약 삭제하기 === //
+	@Override
+	public int delReservation(Map<String, Object> paraMap) {
+		int result = sqlsession.delete("reservation.delReservation", paraMap);  
+		return result;
+	}
+	
+	
 	
 	
 	

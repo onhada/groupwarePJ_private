@@ -3,6 +3,9 @@ package com.spring.app.reservation.model;
 import java.util.List;
 import java.util.Map;
 
+import com.spring.app.common.domain.EmployeeVO;
+import com.spring.app.reservation.domain.ReservationVO;
+
 public interface ReservationDAO {
 
 	/** 
@@ -59,6 +62,17 @@ public interface ReservationDAO {
 	List<Map<String, String>> getAllResourceList();
 
 	/** 
+	* @Method Name  : getResourceOption 
+	* @작성일   : Dec 30, 2023 
+	* @작성자   : hada 
+	* @변경이력  : 
+	* @Method 설명 : 승인여부, 반납필수여부 알아오기
+	* @param resourceId
+	* @return 
+	*/
+	Map<String, Object> getResourceOption(String resourceId);
+
+	/** 
 	* @Method Name  : selectReservation 
 	* @작성일   : Dec 30, 2023 
 	* @작성자   : hada 
@@ -80,14 +94,47 @@ public interface ReservationDAO {
 	void addReservation(Map<String, Object> paraMap);
 
 	/** 
-	* @Method Name  : getResourceOption 
-	* @작성일   : Dec 30, 2023 
+	* @Method Name  : getmyReservationList 
+	* @작성일   : Dec 31, 2023 
 	* @작성자   : hada 
 	* @변경이력  : 
-	* @Method 설명 : 승인여부, 반납필수여부 알아오기
-	* @param resourceId
+	* @Method 설명 : 나의 예약 목록 가져오기
+	* @param paraMap
 	* @return 
 	*/
-	Map<String, Object> getResourceOption(String resourceId);
+	List<ReservationVO> getmyReservationList(Map<String, Object> paraMap);
+
+	/** 
+	* @Method Name  : getReservationInfoDetail 
+	* @작성일   : Dec 31, 2023 
+	* @작성자   : hada 
+	* @변경이력  : 
+	* @Method 설명 : 자원예약 한 건에 대한 정보 가져오기
+	* @param paraMap
+	* @return 
+	*/
+	ReservationVO getReservationInfoDetail(Map<String, Object> paraMap);
+
+	/** 
+	* @Method Name  : getEmpInfo 
+	* @작성일   : Dec 31, 2023 
+	* @작성자   : hada 
+	* @변경이력  : 
+	* @Method 설명 : 사원 정보 가져오기
+	* @param paraMap
+	* @return 
+	*/
+	Map<String, String> getEmpInfo(Map<String, Object> paraMap);
+
+	/** 
+	* @Method Name  : delReservation 
+	* @작성일   : Dec 31, 2023 
+	* @작성자   : hada 
+	* @변경이력  : 
+	* @Method 설명 : 예약 삭제하기
+	* @param paraMap
+	* @return 
+	*/
+	int delReservation(Map<String, Object> paraMap);
 
 }

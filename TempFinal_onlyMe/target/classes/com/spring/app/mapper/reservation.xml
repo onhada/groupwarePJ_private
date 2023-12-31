@@ -28,11 +28,11 @@
 	    <result property="resourceName" 			column="resourceName" 			javaType="String" />
 	    <result property="description" 				column="description" 			javaType="String" />
 	    <result property="imageFile" 				column="imageFile" 				javaType="String" />
-	    <result property="status" 					column="status" 				javaType="String" />
+	    <result property="isApproval" 					column="isApproval" 				javaType="String" />
 	    <result property="isReturn" 				column="isReturn" 				javaType="String" />
 	</resultMap>
 	<select id="getResourceList" parameterType="HashMap" resultMap="getResourceList_Map">
-		select resourceId, fk_resourceCategoryId, resourceName, description, imageFile, status, isReturn
+		select resourceId, fk_resourceCategoryId, resourceName, description, imageFile, isApproval, isReturn
 		from tbl_resource
 		where isDelete = 0 and fk_resourceCategoryId = #{resourceCategoryId}
 		order by resourceId asc		
@@ -84,6 +84,18 @@
 	</select>
 	
 	
+	<!-- === 승인여부, 반납필수여부 알아오기 === -->
+	<resultMap type="HashMap" id="getResourceOption_map">
+	    <result property="isApproval" 				column="isApproval" 			javaType="String" />
+	    <result property="isReturn" 	column="isReturn" 	javaType="String" />
+	</resultMap>
+	<select id="getResourceOption" parameterType="String" resultMap="getResourceOption_map">
+		select isApproval, isReturn
+		from tbl_resource
+		where resourceId = #{resourceId}
+	</select>
+	
+	
 	<!-- === 해당일시에 등록된 예약이 있는지 조회 === -->
 	<resultMap type="HashMap" id="selectReservation_map">
 	    <result property="rsvResourceId"		column="rsvResourceId" 			javaType="String" />
@@ -94,46 +106,89 @@
 		from tbl_reservationResource
 		where fk_resourceId = #{resourceId} 
 		      and (
-		              ( #{rsvStartDayTime} <= rsvStartDayTime and ( rsvStartDayTime <= #{rsvEndDayTime} and #{rsvEndDayTime} <= rsvEndDayTime ) )
-		           or ( rsvStartDayTime <= #{rsvStartDayTime} and  #{rsvEndDayTime} <= rsvEndDayTime )
-		           or ( (rsvStartDayTime <= #{rsvStartDayTime} and #{rsvStartDayTime} <= rsvEndDayTime) and rsvEndDayTime <= #{rsvEndDayTime} )
-		           or ( #{rsvStartDayTime} <= rsvStartDayTime and rsvEndDayTime <= #{rsvEndDayTime} )
-		          )	
+		              ( to_date(#{rsvStartDayTime}, 'YYYY-MM-DD HH24:MI:SS') <= rsvStartDayTime and ( rsvStartDayTime <= to_date(#{rsvEndDayTime}, 'YYYY-MM-DD HH24:MI:SS') and to_date(#{rsvEndDayTime}, 'YYYY-MM-DD HH24:MI:SS') <= rsvEndDayTime ) )
+		           or ( rsvStartDayTime <= to_date(#{rsvStartDayTime}, 'YYYY-MM-DD HH24:MI:SS') and  to_date(#{rsvEndDayTime}, 'YYYY-MM-DD HH24:MI:SS') <= rsvEndDayTime )
+		           or ( (rsvStartDayTime <= to_date(#{rsvStartDayTime}, 'YYYY-MM-DD HH24:MI:SS') and to_date(#{rsvStartDayTime}, 'YYYY-MM-DD HH24:MI:SS') <= rsvEndDayTime) and rsvEndDayTime <= to_date(#{rsvEndDayTime}, 'YYYY-MM-DD HH24:MI:SS') )
+		           or ( to_date(#{rsvStartDayTime}, 'YYYY-MM-DD HH24:MI:SS') <= rsvStartDayTime and rsvEndDayTime <= to_date(#{rsvEndDayTime}, 'YYYY-MM-DD HH24:MI:SS') )
+		          )
 		]]>          	
 	</select>
 	
 	
 	<!-- === 예약하기 (자원예약 table에 insert) === -->
 	<insert id="addReservation" parameterType="HashMap">
-		<!-- 원메일쓰기인 경우 -->
-		<if test='orgMailId.equals("0")'> 
-			insert into tbl_mail(mailId, subject, mailContent, sendDay, orgMailId)
-			values(mailSeq.nextval, #{subject}, #{mailContent}, sysdate, default)		 
+		<!-- rsvStatus:예약상태 (1:승인대기중, 2:예약완료, 3:예약반려) 
+			 approvalStatus:결재현황 (1:대기, 2:승인, 3:반려)
+			 isReturn:반납여부 (0:반납필요자원아님, 1:반납대기, 2:반납완료) -->
+		<!-- 경우1 : 승인없이예약가능 and 반납필요없음 -->
+		<if test='isApproval.equals("0") and isReturn.equals("0")'> 
+			insert into tbl_reservationResource(rsvResourceId, fk_resourceId, fk_empId, rsvStartDayTime, rsvEndDayTime, rsvReason, rsvStatus, returnStatus, registerDay)
+			values(rsvresourceSeq.nextval, #{resourceId}, #{loginEmpId}, to_date(#{rsvStartDayTime}, 'YYYY-MM-DD HH24:MI:SS'), to_date(#{rsvEndDayTime}, 'YYYY-MM-DD HH24:MI:SS'), #{rsvReason}, 2, 0, default)				 
 		</if>
-		<!-- 답장메일쓰기인 경우 -->
-		<if test='!orgMailId.equals("0")'>
-			insert into tbl_mail(mailId, subject, mailContent, sendDay, orgMailId)
-			values(mailSeq.nextval, #{subject}, #{mailContent}, sysdate, #{orgMailId})
+		<!-- 경우2 : 승인없이예약가능 and 반납필요 -->
+		<if test='isApproval.equals("0") and isReturn.equals("1")'> 
+			insert into tbl_reservationResource(rsvResourceId, fk_resourceId, fk_empId, rsvStartDayTime, rsvEndDayTime, rsvReason, rsvStatus, returnStatus, registerDay)
+			values(rsvresourceSeq.nextval, #{resourceId}, #{loginEmpId}, to_date(#{rsvStartDayTime}, 'YYYY-MM-DD HH24:MI:SS'), to_date(#{rsvEndDayTime}, 'YYYY-MM-DD HH24:MI:SS'), #{rsvReason}, 2, 1, default)				 
+		</if>
+		<!-- 경우3 : 승인필요함 and 반납필요없음 -->
+		<if test='isApproval.equals("1") and isReturn.equals("0")'> 
+			insert into tbl_reservationResource(rsvResourceId, fk_resourceId, fk_empId, rsvStartDayTime, rsvEndDayTime, rsvReason, rsvStatus, approvalStatus, returnStatus, registerDay)
+			values(rsvresourceSeq.nextval, #{resourceId}, #{loginEmpId}, to_date(#{rsvStartDayTime}, 'YYYY-MM-DD HH24:MI:SS'), to_date(#{rsvEndDayTime}, 'YYYY-MM-DD HH24:MI:SS'), #{rsvReason}, 1, 1, 0, default)			 
+		</if>
+		<!-- 경우4 : 승인필요함 and 반납필요 -->
+		<if test='isApproval.equals("1") and isReturn.equals("1")'> 
+			insert into tbl_reservationResource(rsvResourceId, fk_resourceId, fk_empId, rsvStartDayTime, rsvEndDayTime, rsvReason, rsvStatus, approvalStatus, returnStatus, registerDay)
+			values(rsvresourceSeq.nextval, #{resourceId}, #{loginEmpId}, to_date(#{rsvStartDayTime}, 'YYYY-MM-DD HH24:MI:SS'), to_date(#{rsvEndDayTime}, 'YYYY-MM-DD HH24:MI:SS'), #{rsvReason}, 1, 1, 1, default)			 
 		</if>
 	</insert>
 	
 	
-	<!-- === 승인여부, 반납필수여부 알아오기 === -->
-	<resultMap type="HashMap" id="getResourceOption_map">
-	    <result property="resourceId" 				column="resourceId" 			javaType="String" />
-	    <result property="fk_resourceCategoryId" 	column="fk_resourceCategoryId" 	javaType="String" />
-	    <result property="resourceName" 			column="resourceName" 			javaType="String" />
-	    <result property="description" 				column="description" 			javaType="String" />
-	    <result property="imageFile" 				column="imageFile" 				javaType="String" />
-	</resultMap>
-	<select id="getResourceOption" parameterType="String" resultMap="getResourceOption_map">
-		select status, isReturn
-		from tbl_resource
-		where resourceId = #{resourceId}
+	<!-- === 나의 예약 목록 가져오기 === -->
+	<select id="getmyReservationList" parameterType="HashMap" resultType="com.spring.app.reservation.domain.ReservationVO">
+		select rsvResourceId, fk_empId, resourceId, resourceName, resourceCategoryId, resourceCategoryName,
+		       rsvStartDayTime, rsvEndDayTime, rsvReason, rsvStatus, 
+		       approvalStatus, approvalDay, fk_approvalEmpId, 
+		       A.returnStatus as returnStatus, A.registerDay as registerDay, A.updateDay as updateDay
+		from tbl_reservationResource A
+		join tbl_resource B
+		on A.fk_resourceId = B.resourceId
+		join tbl_resourceCategory C
+		on B.fk_resourceCategoryId = C.resourceCategoryId
+		<if test='type.equals("reserved")'>
+			<![CDATA[ where fk_empId = #{loginEmpId} and sysdate <= rsvEndDayTime and rsvStatus = 2 ]]> 
+		</if>
+		<if test='type.equals("waiting")'>
+			<![CDATA[ where fk_empId = #{loginEmpId} and sysdate <= rsvEndDayTime and (rsvStatus = 1 or rsvStatus = 3) ]]> 
+		</if>
+		<if test='type.equals("oneDetailInfo")'>
+			<![CDATA[ where rsvResourceId = #{rsvResourceId} and sysdate <= rsvEndDayTime ]]> 
+		</if>
+		order by rsvStartDayTime		         	
 	</select>
-	
-	
-	
-	
-	
+ 
+ 
+ 	<!-- === 사원 정보 가져오기 === -->
+ 	<resultMap type="HashMap" id="getEmpInfo_map">
+	    <result property="empId" 	column="empId" 		javaType="String" />
+	    <result property="empName" 	column="empName" 	javaType="String" />
+	</resultMap>
+ 	<select id="getEmpInfo" parameterType="HashMap" resultMap="getEmpInfo_map">
+	 	select empId, empName
+		from tbl_employee
+		where empId = #{empId}
+ 	</select>
+ 	
+ 	
+ 	<!-- === 예약 삭제하기 === -->
+ 	<delete id="delReservation" parameterType="HashMap">
+ 		delete from tbl_reservationResource
+ 		where rsvResourceId = #{rsvResourceId}
+ 	</delete>
+ 	
+ 	
+ 	
+ 	
+ 	
+ 	
+ 	
 </mapper>	
