@@ -90,11 +90,11 @@ public class ReservationService_imple implements ReservationService {
 	}
 
 
-	// === 나의 예약 목록 가져오기 === //
+	// === 예약 목록 가져오기 === //
 	@Override
-	public List<ReservationVO> getmyReservationList(Map<String, Object> paraMap) {
-		List<ReservationVO> myReservationList = dao.getmyReservationList(paraMap);
-		return myReservationList;
+	public List<ReservationVO> getReservationList(Map<String, Object> paraMap) {
+		List<ReservationVO> reservationList = dao.getReservationList(paraMap);
+		return reservationList;
 	}
 
 
@@ -120,5 +120,41 @@ public class ReservationService_imple implements ReservationService {
 		int result = dao.delReservation(paraMap);
 		return result;
 	}
+
+	
+	// === 예약 자원 반납하기 === //
+	@Override
+	public int returnRsource(Map<String, Object> paraMap) {
+		int result = dao.returnRsource(paraMap);
+		return result;
+	}
+	
+
+	// === 로그인 사원이 인사관리자인지 확인 === //
+	@Override
+	public String isAdmin(Map<String, Object> paraMap) {
+		String rsvAdminEmpId = dao.isAdmin(paraMap); 
+		return rsvAdminEmpId;
+	}
+
+	// === 총 예약 건수 가져오기 === //
+	@Override
+	public int getTotalCount(Map<String, Object> paraMap) {
+		int totalCount = dao.getTotalCount(paraMap);
+		return totalCount;
+	}
+
+	
+	// === 예약 승인하기 === //
+	@Override
+	public int rsvApprove(Map<String, Object> paraMap) {
+		int result = dao.rsvApprove(paraMap);
+		return result;
+	}
+
+
+	
+
+
 	
 }

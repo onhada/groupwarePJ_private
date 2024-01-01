@@ -90,11 +90,11 @@ public class ReservationDAO_imple implements ReservationDAO {
 	}
 
 	
-	// === 나의 예약 목록 가져오기 === //
+	// === 예약 목록 가져오기 === //
 	@Override
-	public List<ReservationVO> getmyReservationList(Map<String, Object> paraMap) {
-		List<ReservationVO> myReservationList = sqlsession.selectList("reservation.getmyReservationList", paraMap);
-		return myReservationList;
+	public List<ReservationVO> getReservationList(Map<String, Object> paraMap) {
+		List<ReservationVO> reservationList = sqlsession.selectList("reservation.getReservationList", paraMap);
+		return reservationList;
 	}
 
 
@@ -118,6 +118,38 @@ public class ReservationDAO_imple implements ReservationDAO {
 	@Override
 	public int delReservation(Map<String, Object> paraMap) {
 		int result = sqlsession.delete("reservation.delReservation", paraMap);  
+		return result;
+	}
+
+	
+	// === 예약 자원 반납하기 === //
+	@Override
+	public int returnRsource(Map<String, Object> paraMap) {
+		int result = sqlsession.update("reservation.returnRsource", paraMap);  
+		return result;
+	}
+	
+	
+	// === 로그인 사원이 인사관리자인지 확인 === //
+	@Override
+	public String isAdmin(Map<String, Object> paraMap) {
+		String rsvAdminEmpId = sqlsession.selectOne("reservation.isAdmin", paraMap);
+		return rsvAdminEmpId;
+	}
+
+
+	// === 총 예약 건수 가져오기 === //
+	@Override
+	public int getTotalCount(Map<String, Object> paraMap) {
+		int totalCount = sqlsession.selectOne("reservation.getTotalCount", paraMap);
+		return totalCount;
+	}
+
+	
+	// === 예약 승인하기 === //
+	@Override
+	public int rsvApprove(Map<String, Object> paraMap) {
+		int result = sqlsession.update("reservation.rsvApprove", paraMap);  
 		return result;
 	}
 	

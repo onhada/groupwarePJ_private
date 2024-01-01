@@ -56,6 +56,10 @@
 #reservation_info_detail_layer > div.layer_box > div {
 	width: 520px;
 }
+
+#reservation_reject_layer > div.layer_box > div {
+	width: 350px;
+}
 </style>
 
 
@@ -173,8 +177,10 @@ $(document).ready(function() {
 		 }
 	 });// 생년월일에 마우스로 달력에 있는 날짜를 선택한 경우 이벤트 처리 한것 
 	 */
-	 $("button.del_reservation_btn").attr("id", $(".rsv_detail_view").attr("rsvResourceId"));
-	// $(".rsv_detail_view").val();
+	 $("button.del_reservation_btn").attr("id", $(".rsv_detail_view").attr("rsvResourceId")); // 삭제하기 위한 자원예약id 넣기
+	 $("button.reservation_return_btn").attr("id", $(".rsv_detail_view").attr("rsvResourceId")); // 반납하기 위한 자원예약id 넣기
+	 $("button.reservation_approve_btn").attr("id", $(".rsv_detail_view_btn").attr("id")); // 승인하기 위한 자원예약id 넣기
+		
 	
 })// end of $(document).ready(function(){})-------------------------
 
@@ -307,7 +313,7 @@ function reservation_info_detail_open(rsvResourceId) {
 				
 				$("dd#resourceName").text(item.resourceName);
 				$("dd#rsvDayTime").text(item.rsvStartDayTime + " ~ " + item.rsvEndDayTime);
-				$("dd#fk_empId").text(item.fk_empId + "(" + item.registerDay + ")");
+				$("dd#rsvEmpName").text(item.rsvEmpName + "(" + item.registerDay + ")");
 				$("dd#rsvReason").text(item.rsvReason);
 				
 				var rsvStatus = "";
@@ -334,7 +340,7 @@ function reservation_info_detail_open(rsvResourceId) {
 						success : function(employeevo) {
 							let html = "<dl class='after' id='approvalEmp'>" +
 									   		"<dt>"+
-									   			"<label for=''>예약 승인자</label>"+
+									   			"<label for=''>예약 관리자</label>"+
 									   		"</dt>"+
 									   		"<dd id='fk_approvalEmpId'>"+employeevo.empName+"</dd>"+
 									   "</dl>";
@@ -344,6 +350,30 @@ function reservation_info_detail_open(rsvResourceId) {
 							alert("code: " + request.status + "\n" + "message: " + request.responseText + "\n" + "error: " + error);
 						}
 					});	
+				}
+				
+				// --- 예약 반려인 경우 시작 --- //
+				$("dl#rejectReason").remove();	
+				if(item.rejectReason != null){ 
+					<%-- $.ajax({
+				    	url : "<%=ctxPath%>/reservation/getEmpInfo.gw",
+						type : "get",
+						data : {"empId":item.fk_approvalEmpId},				
+						dataType : "json",
+						async : false,
+						success : function(employeevo) { --%>
+							let html = "<dl class='after' id='rejectReason'>" +
+									   		"<dt>"+
+									   			"<label for=''>반려 사유</label>"+
+									   		"</dt>"+
+									   		"<dd id='rejectReason'>"+item.rejectReason+"</dd>"+ 
+									   	"</dl>";
+							$("div#rsvInfoDetail").append(html);	
+						/* },
+						error : function(request, status, error) {
+							alert("code: " + request.status + "\n" + "message: " + request.responseText + "\n" + "error: " + error);
+						}
+					});	 */
 				}
 				
 				// --- 반납 버튼 삭제하는 경우 --- //
@@ -371,8 +401,6 @@ function delRsvModalOpen(){
 
 <%-- 예약 삭제하기 --%>
 function delRservation(rsvId){
-//	$("button.del_reservation_btn").attr("id", item.rsvResourceId);
-	
 	$.ajax({
     	url : "<%=ctxPath%>/reservation/delReservation.gw",
 		type : "get",
@@ -380,12 +408,12 @@ function delRservation(rsvId){
 		dataType : "json",
 		async : false,
 		success : function(json) {
-			if(json.result == 1){// 예약삭제 성공한 경우 
+			if(json.result == 1){ // 예약삭제 성공한 경우 
 				alert("예약이 삭제 되었습니다.");
 				window.location.reload();
 			}
-			else{// 해당 일시에 등록된 예약이 존재해 예약 실패한 경우
-				alert("등록된dd 예약이 존재합니다.");
+			else{ // 예약 삭제 실패한 경우
+				alert("예약 삭제를 실패했습니다.");
 			}
 			
 		},
@@ -396,7 +424,98 @@ function delRservation(rsvId){
 }
 
 
+<%-- 예약 자원 반납 모달 열기 --%>
+function returnRsourceModalOpen(){
+	$("div#reservation_return_layer").removeClass("hide");	
+}
 
+
+<%-- 예약 자원 반납하기--%>
+function returnRsource(rsvId){		
+	$.ajax({
+    	url : "<%=ctxPath%>/reservation/returnRsource.gw",
+		type : "get",
+		data : {"rsvResourceId":rsvId},	
+		dataType : "json",
+		async : false,
+		success : function(json) {
+			if(json.result == 1){ // 자원 반납 성공한 경우 
+				alert("반납되었습니다.");
+				window.location.reload();
+			}
+			else{ // 자원 반납 실패한 경우
+				alert("반납에 실패했습니다.");
+			}
+			
+		},
+		error : function(request, status, error) {
+			alert("code: " + request.status + "\n" + "message: " + request.responseText + "\n" + "error: " + error);
+		}
+	});	
+}
+
+
+<%-- 예약 승인 모달 열기 --%>
+function rsvApproveModalOpen(){
+	$("div#reservation_approve_layer").removeClass("hide");	
+}
+
+
+<%-- 예약 승인하기 --%>
+function rsvApprove(rsvId){		
+	$.ajax({
+    	url : "<%=ctxPath%>/reservation/rsvApprove.gw",
+		type : "get",
+		data : {"rsvResourceId":rsvId},	
+		dataType : "json",
+		async : false,
+		success : function(json) {
+			if(json.result == 1){ // 자원 반납 성공한 경우 
+				alert("승인되었습니다.");
+				window.location.reload();
+			}
+			else{ // 자원 반납 실패한 경우
+				alert("승인에 실패했습니다.");
+			}
+			
+		},
+		error : function(request, status, error) {
+			alert("code: " + request.status + "\n" + "message: " + request.responseText + "\n" + "error: " + error);
+		}
+	});	
+}
+
+
+<%-- 예약 반려 모달 열기 --%>
+function rsvRejectModalOpen(){
+	$("div#reservation_reject_layer").removeClass("hide");	
+}
+
+<%-- 예약 반려하기 --%>
+function rsvReject(rsvId){
+	$.ajax({
+    	url : "<%=ctxPath%>/reservation/rsvReject.gw",
+		type : "get",
+		data : {"rsvResourceId":rsvId,
+				"rejectReason":$("input#rejectReason").val()},	
+		dataType : "json",
+		async : false,
+		success : function(json) {
+			if(json.result == 1){ // 자원 반납 성공한 경우 
+				alert("반려되었습니다.");
+				window.location.reload();
+			}
+			else{ // 자원 반납 실패한 경우
+				alert("반려에 실패했습니다.");
+			}
+			
+		},
+		error : function(request, status, error) {
+			alert("code: " + request.status + "\n" + "message: " + request.responseText + "\n" + "error: " + error);
+		}
+	});	
+}
+	
 /* 수정필) 이전날, 다음날, 오늘 누르면 바로 이동한느 것?  
 function moveDate(type){
 		
@@ -503,6 +622,75 @@ function moveDate(type){
 		<!-- /////////////////////// 모달 시작 /////////////////////// -->
 
 
+				<%-- ========== 카테고리설명 모달 시작 ========== --%>
+		<div id="category_detail_layer" class="booking_layer_div hide">
+			<div class="layer_box" style="z-index: 1005;">
+				<div class="layer_box rs-detail-layer popup16" style="margin-left: -411px; margin-top: -300.5px; display: block; z-index: 1005;">
+					<div class="title_layer text_variables">카테고리 설명</div>
+					<div class="scroll ta_c">
+						<div class="rs-detail-img">
+							<img src="<%=ctxPath%>/resources/image/reservation/${requestScope.resourceCategoryInfo_map.imageFile}" alt="">
+						</div>
+						<div class="rs-name">${requestScope.resourceCategoryInfo_map.resourceCategoryName}</div>
+						<div class="rs-detail-text">${requestScope.resourceCategoryInfo_map.description}</div>
+
+						<div class="rs-tag after hide">
+							<div class="title">
+								<strong>자원 속성</strong>
+							</div>
+							<ul>
+							</ul>
+						</div>
+					</div>
+					<div class="layer_button">
+						<button type="button" class="btn_variables reservation_layer_close" onclick="layerClose('category_detail');">확인</button>
+					</div>
+					<a href="javascript:void(0)" class="icon btn_closelayer reservation_layer_close" onclick="layerClose('category_detail');" title="레이어 닫기">
+						<span class="blind">닫기</span>
+					</a>
+				</div>
+			</div>
+			<div class="layer_back" style="position: fixed; width: 100%; height: 100%; z-index: 1000; background-color: rgb(0, 0, 0); opacity: 0.3; top: 0px; left: 0px; margin: 0px; padding: 0px;"></div>
+		</div>
+		<%-- ========== 카테고리설명 모달 끝 ========== --%>
+
+				
+		<%-- ========== 자원설명 모달 시작 ========== --%>
+		<div id="resource_detail_layer" class="booking_layer_div hide">
+			<div class="layer_box" style="z-index: 1005;">
+				<div class="layer_box rs-detail-layer popup16" style="margin-left: -411px; margin-top: -300.5px; display: block; z-index: 1005;">
+					<div class="title_layer text_variables">자원 설명</div>
+					<div class="scroll ta_c">
+						<div class="rs-detail-img">
+							<img class="rs-imgFile" src="" alt="">
+						</div>
+						<div class="rs-name"></div>
+						<div class="rs-detail-text"></div>
+						<!-- 
+						<div class="rs-tag after">
+							<div class="title">
+								<strong>자원 속성</strong>
+							</div>
+							<ul>
+								<li>오후 02:00부터 오후 05:00까지 이용 불가</li>
+								<li>수요일 이용 불가</li>
+							</ul>
+						</div>
+						-->
+					</div>
+					<div class="layer_button">
+						<button type="button" class="btn_variables booking_layer_close" onclick="layerClose('resource_detail');">확인</button>
+					</div>
+					<a href="javascript:void(0)" class="icon btn_closelayer booking_layer_close" onclick="layerClose('resource_detail');" title="레이어 닫기">
+						<span class="blind">닫기</span>
+					</a>
+				</div>
+			</div>
+			<div class="layer_back" style="position: fixed; width: 100%; height: 100%; z-index: 1000; background-color: rgb(0, 0, 0); opacity: 0.3; top: 0px; left: 0px; margin: 0px; padding: 0px;"></div>
+		</div>
+		<%-- ========== 자원설명 모달 끝 ========== --%>
+		
+		
 		<%-- ========== 예약하기 모달 시작 ========== --%>
 		<div id="resource_reservation_layer" class="booking_layer_div hide">
 			<div class="layer_box" style="z-index: 1005;">
@@ -584,9 +772,9 @@ function moveDate(type){
 						</div>
 						<div class="layer_button">
 							<button type="button" class="btn_variables" onclick="addReservation();">저장</button>
-							<button type="button" class="reservation_layer_close" id="resource_reservation" onclick="layerClose(this.id);">취소</button>
+							<button type="button" class="reservation_layer_close" onclick="layerClose('resource_reservation');">취소</button>
 						</div>
-						<a href="javascript:void(0)" class="icon btn_closelayer reservation_layer_close" id="resource_reservation" onclick="layerClose(this.id);" title="레이어 닫기">
+						<a href="javascript:void(0)" class="icon btn_closelayer reservation_layer_close" onclick="layerClose('resource_reservation');" title="레이어 닫기">
 							<span class="blind">레이어 닫기</span>
 						</a>
 					</form>
@@ -619,7 +807,7 @@ function moveDate(type){
 							<dt>
 								<label for="">등록자</label>
 							</dt>
-							<dd id="fk_empId"></dd>
+							<dd id="rsvEmpName"></dd>
 						</dl>
 						<dl class="after">
 							<dt>
@@ -637,12 +825,13 @@ function moveDate(type){
 					</div>
 
 					<div class="layer_button">
-						<button type="button" class="btn_variables booking_layer_close" id="reservation_info_detail" onclick="layerClose(this.id);">확인</button>
-						<button type="button" class="btn_variables booking_return_layer_btn" id="returnStatus" booking_no="19221">반납</button>
-						<!--button type="button" class="btn_variables">수정</button-->
+						<button type="button" class="btn_variables booking_layer_close" onclick="layerClose('reservation_info_detail');">확인</button>
+						<c:if test='${reservedResource.returnStatus != "0"}'>
+						<button type="button" class="btn_variables booking_return_layer_btn" id="returnStatus" onclick="returnRsourceModalOpen()">반납</button>
+						</c:if>
 						<button type="button" class="warning" onclick="delRsvModalOpen()">삭제</button>
 					</div>
-					<a href="javascript:void(0)" class="icon btn_closelayer booking_layer_close" id="reservation_info_detail" onclick="layerClose(this.id);" title="레이어 닫기">
+					<a href="javascript:void(0)" class="icon btn_closelayer booking_layer_close" onclick="layerClose('reservation_info_detail');" title="레이어 닫기">
 						<span class="blind">닫기</span>
 					</a>
 				</div>
@@ -652,10 +841,7 @@ function moveDate(type){
 		<%-- ========== 예약확인 모달 끝 ========== --%>
 
 
-
-
-
-		<!-- # 예약삭제 모달 시작 -->
+		<%-- ========== 예약삭제 모달 시작 ========== --%>
 		<div id="reservation_del_layer" class="booking_layer_div hide">
 			<div class="layer_box" style="z-index: 1005;">
 				<div class="layer_box middle popup4" style="margin-left: -175px; margin-top: -120px; display: block; z-index: 1005;">
@@ -666,177 +852,89 @@ function moveDate(type){
 
 					<div class="layer_button">
 						<button type="button" class="btn_variables del_reservation_btn" onclick="delRservation(this.id)">확인</button>
-						<button type="button" class="booking_layer_close" id="reservation_del" onclick="layerClose(this.id);">취소</button>
+						<button type="button" class="booking_layer_close" onclick="layerClose('reservation_del');">취소</button>
 					</div>
-					<a href="javascript:void(0)" class="icon btn_closelayer booking_layer_close" id="reservation_del" onclick="layerClose(this.id);" title="레이어 닫기">
+					<a href="javascript:void(0)" class="icon btn_closelayer booking_layer_close" onclick="layerClose('reservation_del');" title="레이어 닫기">
 						<span class="blind">닫기</span>
 					</a>
 				</div>
 			</div>
 			<div class="layer_back" style="position: fixed; width: 100%; height: 100%; z-index: 1000; background-color: rgb(0, 0, 0); opacity: 0.3; top: 0px; left: 0px; margin: 0px; padding: 0px;"></div>
 		</div>
-		<!-- # 예약삭제 모달 끝 -->
+		<%-- ========== 예약삭제 모달 끝 ========== --%>
 
 
-
-
-		<%--
-		<!-- # 예약반납 모달 시작 -->
-		<div id="booking_return_layer" class="booking_layer_div">
+		<%-- ========== 예약반납 모달 시작 ========== --%>
+		<div id="reservation_return_layer" class="booking_layer_div hide">
 			<div class="layer_box" style="z-index: 1005;">
-				<div class="layer_box middle popup12"
-					style="margin-left: -175px; margin-top: -87.5px; display: block; z-index: 1005;">
+				<div class="layer_box middle popup12" style="margin-left: -175px; margin-top: -87.5px; display: block; z-index: 1005;">
 					<div class="title_layer text_variables">반납 확인</div>
 					<div class="font12">
-						<span class="point_color">대표이사님이 예약한 자원을 반납 처리합니다.</span>
+						<span class="point_color">예약한 자원을 반납 처리합니다.</span>
 					</div>
 					<div class="layer_button">
-						<button type="button" class="btn_variables booking_return_btn"
-							booking_no="19226">확인</button>
-						<button type="button" class="booking_layer_close">취소</button>
+						<button type="button" class="btn_variables reservation_return_btn" onclick="returnRsource(this.id)">확인</button>
+						<button type="button" class="booking_layer_close" onclick="layerClose('reservation_return');">취소</button>
 					</div>
-					<a href="javascript:void(0)"
-						class="icon btn_closelayer booking_layer_close" title="레이어 닫기"><span
-						class="blind">레이어 닫기</span></a>
-				</div>
-			</div>
-			<div class="layer_back"
-				style="position: fixed; width: 100%; height: 100%; z-index: 1000; background-color: rgb(0, 0, 0); opacity: 0.3; top: 0px; left: 0px; margin: 0px; padding: 0px;"></div>
-		</div>
-		<!-- # 예약반납 모달 끝 -->
-		--%>
-
-
-
-		<!-- # 카테고리설명 모달 시작 -->
-		<div id="category_detail_layer" class="booking_layer_div hide">
-			<div class="layer_box" style="z-index: 1005;">
-				<div class="layer_box rs-detail-layer popup16" style="margin-left: -411px; margin-top: -300.5px; display: block; z-index: 1005;">
-					<div class="title_layer text_variables">카테고리 설명</div>
-					<div class="scroll ta_c">
-						<div class="rs-detail-img">
-							<img src="<%=ctxPath%>/resources/image/reservation/${requestScope.resourceCategoryInfo_map.imageFile}" alt="">
-						</div>
-						<div class="rs-name">${requestScope.resourceCategoryInfo_map.resourceCategoryName}</div>
-						<div class="rs-detail-text">${requestScope.resourceCategoryInfo_map.description}</div>
-
-						<div class="rs-tag after hide">
-							<div class="title">
-								<strong>자원 속성</strong>
-							</div>
-							<ul>
-							</ul>
-						</div>
-					</div>
-					<div class="layer_button">
-						<button type="button" class="btn_variables reservation_layer_close" id="category_detail" onclick="layerClose(this.id);">확인</button>
-					</div>
-					<a href="javascript:void(0)" class="icon btn_closelayer reservation_layer_close" id="category_detail" onclick="layerClose(this.id);" title="레이어 닫기">
-						<span class="blind">닫기</span>
+					<a href="javascript:void(0)" class="icon btn_closelayer booking_layer_close" title="레이어 닫기" onclick="layerClose('reservation_return');">
+						<span class="blind">레이어 닫기</span>
 					</a>
 				</div>
 			</div>
 			<div class="layer_back" style="position: fixed; width: 100%; height: 100%; z-index: 1000; background-color: rgb(0, 0, 0); opacity: 0.3; top: 0px; left: 0px; margin: 0px; padding: 0px;"></div>
 		</div>
-		<!-- # 카테고리설명 모달 끝 -->
+		<%-- ========== 예약반납 모달 끝 ========== --%>
+		
 
-				
-		<!-- # 자원설명 모달 시작 -->
-		<div id="resource_detail_layer" class="booking_layer_div hide">
+		<%-- ========== 예약승인 모달 시작 ========== --%>
+		<div id="reservation_approve_layer" class="booking_layer_div hide">
 			<div class="layer_box" style="z-index: 1005;">
-				<div class="layer_box rs-detail-layer popup16" style="margin-left: -411px; margin-top: -300.5px; display: block; z-index: 1005;">
-					<div class="title_layer text_variables">자원 설명</div>
-					<div class="scroll ta_c">
-						<div class="rs-detail-img">
-							<img class="rs-imgFile" src="" alt="">
-						</div>
-						<div class="rs-name"></div>
-						<div class="rs-detail-text"></div>
-						<!-- 
-						<div class="rs-tag after">
-							<div class="title">
-								<strong>자원 속성</strong>
-							</div>
-							<ul>
-								<li>오후 02:00부터 오후 05:00까지 이용 불가</li>
-								<li>수요일 이용 불가</li>
-							</ul>
-						</div>
-						-->
+				<div class="layer_box middle popup8" style="margin-left: -175px; margin-top: -95.5px; display: block; z-index: 1005;">
+					<div class="title_layer text_variables">예약 승인</div>
+					<div class="font12">
+						<!-- 수정필 <span class="point_color">대표이사</span> -->
+						<!-- 님의  -->예약 내용을 확인했으며 예약을 승인합니다.
 					</div>
 					<div class="layer_button">
-						<button type="button" class="btn_variables booking_layer_close" id="resource_detail" onclick="layerClose(this.id);">확인</button>
+						<button type="button" class="btn_variables reservation_approve_btn" onclick="rsvApprove(this.id)">확인</button>
+						<button type="button" class="booking_layer_close" onclick="layerClose('reservation_approve');">취소</button>
 					</div>
-					<a href="javascript:void(0)" class="icon btn_closelayer booking_layer_close" id="resource_detail" onclick="layerClose(this.id);" title="레이어 닫기">
-						<span class="blind">닫기</span>
+					<a href="javascript:void(0)" class="icon btn_closelayer booking_layer_close" title="레이어 닫기" onclick="layerClose('reservation_approve');">
+						<span class="blind">레이어 닫기</span>
 					</a>
 				</div>
 			</div>
 			<div class="layer_back" style="position: fixed; width: 100%; height: 100%; z-index: 1000; background-color: rgb(0, 0, 0); opacity: 0.3; top: 0px; left: 0px; margin: 0px; padding: 0px;"></div>
 		</div>
-		<!-- # 자원설명 모달 끝 -->
+		<%-- ========== 예약승인 모달 끝 ========== --%>
 
 
-
-
-		<%--
-<!-- # 예약승인 모달 시작 -->
-<div id="booking_acknowledge_layer" class="booking_layer_div">
-	<div class="layer_box" style="z-index: 1005;">
-		<div class="layer_box middle popup8"
-			style="margin-left: -175px; margin-top: -95.5px; display: block; z-index: 1005;">
-			<div class="title_layer text_variables">예약 승인</div>
-			<div class="font12">
-				<span class="point_color">대표이사</span> 님의 예약 내용을 확인했으며 예약을 승인합니다.
+		<%-- ========== 예약반려 모달 시작 ========== --%>
+		<div id="reservation_reject_layer" class="booking_layer_div hide">
+			<div class="layer_box" style="z-index: 1005;">
+				<div class="layer_box middle popup10" style="margin-left: -175px; margin-top: -126.5px; display: block; z-index: 1005;">
+					<div class="title_layer text_variables">예약 반려</div>
+					<div class="font12">
+						<!-- 수정필 <span class="point_color">대표이사</span> -->
+						<!-- 님의  -->예약을 아래의 사유로 반려합니다.
+					</div>
+					<div class="pdt_30">
+						<strong>메모 추가</strong>
+						<p class="pdt_10">
+							<input type="text" id="rejectReason" style="width: 280px;">
+						</p>
+					</div>
+					<div class="layer_button">
+						<button type="button" class="btn_variables" onclick="rsvReject(this.id)">확인</button>
+					</div>
+					<a href="javascript:void(0)" class="icon btn_closelayer booking_layer_close" title="레이어 닫기" onclick="layerClose('reservation_reject');">
+						<span class="blind">레이어 닫기</span>
+					</a>
+				</div>
 			</div>
-			<div class="layer_button">
-				<button type="button" class="btn_variables"
-					onclick="bookingAcknowledge.modifyBookingStatus('19236', 'BKCP')">확인</button>
-				<button type="button" class="booking_layer_close">취소</button>
-			</div>
-			<a href="javascript:void(0)"
-				class="icon btn_closelayer booking_layer_close" title="레이어 닫기"><span
-				class="blind">레이어 닫기</span></a>
+			<div class="layer_back" style="position: fixed; width: 100%; height: 100%; z-index: 1000; background-color: rgb(0, 0, 0); opacity: 0.3; top: 0px; left: 0px; margin: 0px; padding: 0px;"></div>
 		</div>
-	</div>
-	<div class="layer_back"
-		style="position: fixed; width: 100%; height: 100%; z-index: 1000; background-color: rgb(0, 0, 0); opacity: 0.3; top: 0px; left: 0px; margin: 0px; padding: 0px;"></div>
-</div>
-<!-- # 예약승인 모달 끝 -->
---%>
-
-
-
-		<%-- 
-<!-- # 예약반려 모달 시작 -->
-<div id="booking_reject_layer" class="booking_layer_div">
-	<div class="layer_box" style="z-index: 1005;">
-		<div class="layer_box middle popup10"
-			style="margin-left: -175px; margin-top: -126.5px; display: block; z-index: 1005;">
-			<div class="title_layer text_variables">예약 반려</div>
-			<div class="font12">
-				<span class="point_color">대표이사</span> 님의 예약을 아래의 사유로 반려합니다.
-			</div>
-			<div class="pdt_30">
-				<strong>메모 추가</strong>
-				<p class="pdt_10">
-					<input type="text" id="reject_reason_layer" style="width: 280px;">
-				</p>
-			</div>
-			<div class="layer_button">
-				<button type="button" class="btn_variables"
-					onclick="bookingAcknowledge.modifyBookingStatus('19236', 'BKRJ')">확인</button>
-			</div>
-			<a href="javascript:void(0)"
-				class="icon btn_closelayer booking_layer_close" title="레이어 닫기"><span
-				class="blind">레이어 닫기</span></a>
-		</div>
-	</div>
-	<div class="layer_back"
-		style="position: fixed; width: 100%; height: 100%; z-index: 1000; background-color: rgb(0, 0, 0); opacity: 0.3; top: 0px; left: 0px; margin: 0px; padding: 0px;"></div>
-</div>
-<!-- # 예약반려 모달 끝 -->
---%>
+		<%-- ========== 예약반려 모달 끝 ========== --%>
 
 
 

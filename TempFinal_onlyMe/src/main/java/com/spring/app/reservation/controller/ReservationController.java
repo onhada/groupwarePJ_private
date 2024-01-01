@@ -65,6 +65,9 @@ session.setAttribute("loginUser", loginUser);
 		Map<String, Object> paraMap = new HashMap<>();
 		paraMap.put("loginEmpId", loginEmpId);
 		
+		String rsvAdminEmpId = service.isAdmin(paraMap); // 로그인 사원이 인사관리자인지 확인
+		mav.addObject("rsvAdminEmpId", rsvAdminEmpId);
+		
 		
 		// ----- 자원카테고리 목록 가져오기 시작 ----- //
 		List<Map<String, String>> resourceCategoryList = null;
@@ -73,18 +76,18 @@ session.setAttribute("loginUser", loginUser);
 		// ----- 자원카테고리 목록 가져오기 끝 ----- //	
 
 		
-		List<ReservationVO> myReservationList = null;
+		List<ReservationVO> reservationList = null;
 		
 		// ----- 예약된 자원 목록 가져오기 시작 ----- // 
 		paraMap.put("type", "reserved");
-		myReservationList = service.getmyReservationList(paraMap); 
-		mav.addObject("reservedList", myReservationList);
+		reservationList = service.getReservationList(paraMap); 
+		mav.addObject("reservedList", reservationList);
 		// ----- 예약된 자원 목록 가져오기 끝 ----- // 
 		
 		// ----- 대기 자원 목록 가져오기 시작 ----- // 
 		paraMap.put("type", "waiting");
-		myReservationList = service.getmyReservationList(paraMap);
-		mav.addObject("waitingForApprovalList", myReservationList);
+		reservationList = service.getReservationList(paraMap);
+		mav.addObject("waitingForApprovalList", reservationList);
 		// ----- 대기 자원 목록 가져오기 끝 ----- // 
 		
 		
@@ -109,7 +112,23 @@ session.setAttribute("loginUser", loginUser);
 	@GetMapping("reservationResource.gw")
 	public ModelAndView reservationResource(HttpServletRequest request, HttpServletResponse response, ModelAndView mav) {
 
-	
+/* 로그인 확인을 위한 테스트코드 시작 */
+HttpSession session = request.getSession();
+EmployeeVO loginUser = new EmployeeVO();
+loginUser.setEmpId((long) 9999); 
+session.setAttribute("loginUser", loginUser);
+/* 로그인 확인을 위한 테스트코드 끝 */		
+		
+
+		long loginEmpId = loginUser.getEmpId();
+		
+		Map<String, Object> paraMap = new HashMap<>();
+		paraMap.put("loginEmpId", loginEmpId);
+		
+		String rsvAdminEmpId = service.isAdmin(paraMap); // 로그인 사원이 인사관리자인지 확인
+		mav.addObject("rsvAdminEmpId", rsvAdminEmpId);	
+		
+		
 		// ----- 자원카테고리 목록 가져오기 시작 ----- //
 		List<Map<String, String>> resourceCategoryList = null;
 		resourceCategoryList = service.getResourceCategoryList();
@@ -118,7 +137,7 @@ session.setAttribute("loginUser", loginUser);
 		
 		
 		String resourceCategoryId = request.getParameter("resourceCategoryId");
-		Map<String, Object> paraMap = new HashMap<>();
+		
 		paraMap.put("resourceCategoryId", resourceCategoryId);
 	
 		
@@ -135,12 +154,17 @@ session.setAttribute("loginUser", loginUser);
 		// ----- 자원 목록 가져오기 끝 ----- //				
 		
 		
-		// ----- 예약된 자원 목록 가져오기 시작 ----- // 
 		
-		// ----- 예약된 자원 목록 가져오기 끝 ----- // 
-		
-		
-		
+//	맞는 시간에 색칠하기가 안 된다고요 ..... 
+//		// ----- 예약된 자원 목록 가져오기 시작 ----- // 
+//		List<ReservationVO> reservationList = null;
+//		paraMap.put("type", "all");
+//		reservationList = service.getmyReservationList(paraMap); 
+//		mav.addObject("reservedList", reservationList);
+//		// ----- 예약된 자원 목록 가져오기 끝 ----- // 
+//	System.out.println("dd"+reservationList); 
+//	System.out.println("$$"+reservationList.size());	
+//		
 		
 		mav.setViewName("resourceList.reservation");
 		
@@ -314,13 +338,13 @@ session.setAttribute("loginUser", loginUser);
 		paraMap.put("loginEmpId", loginEmpId);
 		
 		
-		List<ReservationVO> myReservationDetailInfo = null;
+		List<ReservationVO> reservationDetailInfo = null;
 		
 				
 		// ----- 예약 상세정보 가져오기 시작 ----- // 
 		paraMap.put("type", "oneDetailInfo");
 		paraMap.put("rsvResourceId", rsvResourceId);
-		myReservationDetailInfo = service.getmyReservationList(paraMap); 
+		reservationDetailInfo = service.getReservationList(paraMap); 
 	
 	//	mav.addObject("myReservationDetailInfo", myReservationDetailInfo);
 		// ----- 예약 상세정보 가져오기 끝 ----- // 
@@ -328,12 +352,12 @@ session.setAttribute("loginUser", loginUser);
 		
 		JSONArray jsonArr = new JSONArray(); // [] 
 		
-		if(myReservationDetailInfo != null) {
-			for(ReservationVO rsvvo : myReservationDetailInfo) {
+		if(reservationDetailInfo != null) {
+			for(ReservationVO rsvvo : reservationDetailInfo) {
 				
 				JSONObject jsonObj = new JSONObject(); // {} 
 				jsonObj.put("rsvResourceId", rsvvo.getRsvResourceId());
-				jsonObj.put("fk_empId", loginUser.getEmpName()); 
+				jsonObj.put("rsvEmpName", rsvvo.getRsvEmpName()); 
 				
 				jsonObj.put("resourceId", rsvvo.getResourceId());
 				jsonObj.put("resourceName", rsvvo.getResourceName());
@@ -348,7 +372,8 @@ session.setAttribute("loginUser", loginUser);
 				jsonObj.put("approvalStatus", rsvvo.getApprovalStatus());
 				jsonObj.put("approvalDay", rsvvo.getApprovalDay());
 				jsonObj.put("fk_approvalEmpId", rsvvo.getFk_approvalEmpId());
-
+				jsonObj.put("rejectReason", rsvvo.getRejectReason());
+				
 				jsonObj.put("returnStatus", rsvvo.getReturnStatus());
 				jsonObj.put("registerDay", rsvvo.getRegisterDay());
 				jsonObj.put("updateDay", rsvvo.getUpdateDay());
@@ -410,6 +435,191 @@ session.setAttribute("loginUser", loginUser);
 		
 		int result = 0;
 		result = service.delReservation(paraMap);
+
+	
+		JSONObject jsonObj = new JSONObject(); // {}
+		jsonObj.put("result", result);
+	
+		return jsonObj.toString();
+	}
+	
+	
+	/** 
+	* @Method Name  : returnRsource 
+	* @작성일   : Jan 1, 2024 
+	* @작성자   : hada 
+	* @변경이력  : 
+	* @Method 설명 : 예약 자원 반납하기 rsvApprove.gw
+	* @param request
+	* @param response
+	* @param mav
+	* @return 
+	*/
+	@ResponseBody
+	@GetMapping("returnRsource.gw")
+	public String returnRsource(HttpServletRequest request, HttpServletResponse response, ModelAndView mav) {
+		
+		String rsvResourceId = request.getParameter("rsvResourceId");
+		Map<String, Object> paraMap = new HashMap<>();
+		paraMap.put("rsvResourceId", rsvResourceId);
+		
+		
+		int result = 0;
+		result = service.returnRsource(paraMap);
+
+	
+		JSONObject jsonObj = new JSONObject(); // {}
+		jsonObj.put("result", result);
+	
+		return jsonObj.toString();
+	}
+	
+	
+	/** 
+	* @Method Name  : manageApproval 
+	* @작성일   : Jan 1, 2024 
+	* @작성자   : hada 
+	* @변경이력  : 
+	* @Method 설명 : 승인 관리 페이지 보여주기
+	* @param request
+	* @param response
+	* @param mav
+	* @return 
+	*/
+	@GetMapping("approvalManageAdmin.gw")
+	public ModelAndView approvalManageAdmin(HttpServletRequest request, HttpServletResponse response, ModelAndView mav) {
+
+		// ----- 자원카테고리 목록 가져오기 시작 ----- //
+		List<Map<String, String>> resourceCategoryList = null;
+		resourceCategoryList = service.getResourceCategoryList();
+		mav.addObject("resourceCategoryList", resourceCategoryList);
+		// ----- 자원카테고리 목록 가져오기 끝 ----- //	
+		
+		
+/* 로그인 확인을 위한 테스트코드 시작 */
+HttpSession session = request.getSession();
+EmployeeVO loginUser = new EmployeeVO();
+loginUser.setEmpId((long) 9999); 
+session.setAttribute("loginUser", loginUser);
+/* 로그인 확인을 위한 테스트코드 끝 */		
+
+		long loginEmpId = loginUser.getEmpId();
+		
+		Map<String, Object> paraMap = new HashMap<>();
+		paraMap.put("loginEmpId", loginEmpId);		
+		
+		
+		String rsvAdminEmpId = service.isAdmin(paraMap); // 로그인 사원이 인사관리자인지 확인
+		mav.addObject("rsvAdminEmpId", rsvAdminEmpId);
+		
+		
+		List<ReservationVO> reservationList = null;
+		int totalCount = 0;
+		
+		String type = request.getParameter("type");
+		if(type == null) {
+			type = "approvalWait";
+		}
+		mav.addObject("type", type);
+		
+		// ----- 조건이 뭐냐면 
+		// rsvStatus "예약상태 (1:승인대기중, 2:예약완료, 3:예약반려)"
+		// approvalStatus "결재상태 (1:대기, 2:승인, 3:반려)"
+		// 승인대기 : 승인받아야하는 자원 중에(approvalStatus이 1)
+		// 승인 : 승인받은 자원 중에(approvalStatus이 2)
+		// 반려 : 반려 자원 중에(approvalStatus이 3) 
+		
+		
+		// ----- 승인대기/승인/반려 목록 가져오기 시작 ----- // 
+		paraMap.put("type", type);
+		reservationList = service.getReservationList(paraMap); 
+		totalCount = service.getTotalCount(paraMap);
+		mav.addObject("reservationList", reservationList); 	// 목록 가져오기 
+		mav.addObject("totalCount", totalCount);			// 총 예약 건수 가져오기
+		// ----- 승인대기 목록 가져오기 끝 ----- // 
+				
+		
+		mav.setViewName("manageApproval.reservation");
+		
+		return mav;
+	}
+	
+	
+	/** 
+	* @Method Name  : rsvApprove
+	* @작성일   : Jan 2, 2024 
+	* @작성자   : hada 
+	* @변경이력  : 
+	* @Method 설명 : 예약 승인하기
+	* @param request
+	* @param response
+	* @param mav
+	* @return 
+	*/
+	@ResponseBody
+	@GetMapping("rsvApprove.gw")
+	public String rsvApprove(HttpServletRequest request, HttpServletResponse response, ModelAndView mav) {
+
+/* 로그인 확인을 위한 테스트코드 시작 */
+HttpSession session = request.getSession();
+EmployeeVO loginUser = new EmployeeVO();
+loginUser.setEmpId((long) 9999); 
+session.setAttribute("loginUser", loginUser);
+/* 로그인 확인을 위한 테스트코드 끝 */		
+
+
+		long loginEmpId = loginUser.getEmpId();
+		String rsvResourceId = request.getParameter("rsvResourceId");
+		
+		Map<String, Object> paraMap = new HashMap<>();
+		paraMap.put("loginEmpId", loginEmpId);	
+		paraMap.put("rsvResourceId", rsvResourceId);
+		
+		
+		int result = 0;
+		result = service.rsvApprove(paraMap);
+
+	
+		JSONObject jsonObj = new JSONObject(); // {}
+		jsonObj.put("result", result);
+	
+		return jsonObj.toString();
+	}
+	
+	
+	/** 
+	* @Method Name  : rsvReject 
+	* @작성일   : Jan 2, 2024 
+	* @작성자   : hada 
+	* @변경이력  : 
+	* @Method 설명 : 예약 반려하기
+	* @param request
+	* @param response
+	* @param mav
+	* @return 
+	*/
+	@ResponseBody
+	@GetMapping("rsvReject.gw")
+	public String rsvReject(HttpServletRequest request, HttpServletResponse response, ModelAndView mav) {
+
+/* 로그인 확인을 위한 테스트코드 시작 */
+HttpSession session = request.getSession();
+EmployeeVO loginUser = new EmployeeVO();
+loginUser.setEmpId((long) 9999); 
+session.setAttribute("loginUser", loginUser);
+/* 로그인 확인을 위한 테스트코드 끝 */		
+
+
+		long loginEmpId = loginUser.getEmpId();
+		String rsvResourceId = request.getParameter("rsvResourceId");
+		
+		Map<String, Object> paraMap = new HashMap<>();
+		paraMap.put("loginEmpId", loginEmpId);	
+		paraMap.put("rsvResourceId", rsvResourceId);
+		
+		
+		int result = 0;
+		result = service.rsvApprove(paraMap);
 
 	
 		JSONObject jsonObj = new JSONObject(); // {}

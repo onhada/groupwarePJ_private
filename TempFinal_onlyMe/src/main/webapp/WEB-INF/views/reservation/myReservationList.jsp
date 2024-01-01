@@ -47,9 +47,13 @@
 								<td>${reservedResource.resourceName}</td>
 								<td>${reservedResource.rsvStartDayTime} ~ ${reservedResource.rsvEndDayTime}</td>
 								<td>
-									<button type="button" name="button" class="weakblue del_booking_layer_btn" onclick="delRsvModalOpen()">삭제</button>
-									<span class="grey_bar">|</span>
 									<button type="button" name="button" class="weakblue rsv_detail_view" rsvResourceId="${reservedResource.rsvResourceId}" onclick="reservation_info_detail_open(${reservedResource.rsvResourceId});">상세보기</button>
+									<span class="grey_bar">|</span>
+									<c:if test='${reservedResource.returnStatus != "0"}'>
+									<button type="button" name="button" class="weakblue booking_return_layer_btn" onclick="returnRsourceModalOpen()">반납</button>
+									<span class="grey_bar">|</span>
+									</c:if>
+									<button type="button" name="button" class="weakblue del_booking_layer_btn" onclick="delRsvModalOpen()">삭제</button>
 								</td>
 							</tr>
 						</c:forEach>
@@ -88,7 +92,12 @@
 								<td>${waitingResource.resourceName}</td>
 								<td>${waitingResource.rsvStartDayTime} ~ ${waitingResource.rsvEndDayTime}</td>
 								<td>
-									<span class="point_color rsv_detail_view cpointer" rsvResourceId="${waitingResource.rsvResourceId}" onclick="reservation_info_detail_open(${waitingResource.rsvResourceId});">승인 대기 중</span>
+									<c:if test='${waitingResource.approvalStatus == "1"}'>
+									<span class="point_color rsv_detail_view cpointer" onclick="reservation_info_detail_open(${waitingResource.rsvResourceId});">승인 대기 중</span>
+									</c:if>
+									<c:if test='${waitingResource.approvalStatus == "3"}'>
+									<span class="point_color booking_detail_view cpointer" onclick="reservation_info_detail_open(${waitingResource.rsvResourceId});">예약 반려</span>
+									</c:if>
 								</td>
 							</tr>
 						</c:forEach>

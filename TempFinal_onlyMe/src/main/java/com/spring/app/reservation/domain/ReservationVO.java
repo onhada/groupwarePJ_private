@@ -21,6 +21,15 @@ public class ReservationVO {
 	private String resourceCategoryName;
 	
 	/**
+	 * 예약사원이름
+	 */
+	private String rsvEmpName;
+	/**
+	 * 예약사원이메일
+	 */
+	private String rsvEmpEmail;
+	
+	/**
 	 * 자원예약id
 	 */
 	private String rsvResourceId;
@@ -53,6 +62,10 @@ public class ReservationVO {
 	 * 승인사원id
 	 */
 	private String fk_approvalEmpId;
+	/**
+	 * 예약 반려 사유
+	 */
+	private String rejectReason;
 	
 	/**
 	 * 반납상태 (0:반납필요자원아님, 1:반납대기, 2:반납완료)
@@ -117,6 +130,30 @@ public class ReservationVO {
 	 */
 	public void setResourceCategoryName(String resourceCategoryName) {
 		this.resourceCategoryName = resourceCategoryName;
+	}
+	/**
+	 * @return the rsvEmpName
+	 */
+	public String getRsvEmpName() {
+		return rsvEmpName;
+	}
+	/**
+	 * @param rsvEmpName the rsvEmpName to set
+	 */
+	public void setRsvEmpName(String rsvEmpName) {
+		this.rsvEmpName = rsvEmpName;
+	}
+	/**
+	 * @return the rsvEmpEmail
+	 */
+	public String getRsvEmpEmail() {
+		return rsvEmpEmail;
+	}
+	/**
+	 * @param rsvEmpEmail the rsvEmpEmail to set
+	 */
+	public void setRsvEmpEmail(String rsvEmpEmail) {
+		this.rsvEmpEmail = rsvEmpEmail;
 	}
 	/**
 	 * @return the rsvResourceId
@@ -213,6 +250,18 @@ public class ReservationVO {
 	 */
 	public void setFk_approvalEmpId(String fk_approvalEmpId) {
 		this.fk_approvalEmpId = fk_approvalEmpId;
+	}
+	/**
+	 * @return the rejectReason
+	 */
+	public String getRejectReason() {
+		return rejectReason;
+	}
+	/**
+	 * @param rejectReason the rejectReason to set
+	 */
+	public void setRejectReason(String rejectReason) {
+		this.rejectReason = rejectReason;
 	}
 	/**
 	 * @return the returnStatus

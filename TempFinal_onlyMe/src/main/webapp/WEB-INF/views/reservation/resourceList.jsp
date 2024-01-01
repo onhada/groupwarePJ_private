@@ -128,8 +128,10 @@ $(document).ready(function() {
 									</table>
 								</td>
 
+
 								<%-- 자원 목록 가져오기 --%>
 								<c:if test="${not empty requestScope.resourceList || fn:length(requestScope.resourceList) > 0}">
+									
 									<c:forEach var="resource" items="${requestScope.resourceList}">
 										<td style="border-bottom: none;">
 											<table class="rs-resource-tbl" resourceId="${resource.resourceId}">
@@ -195,6 +197,49 @@ $(document).ready(function() {
 									<td style="border-bottom: none;">
 										<table class="rs-resource-tbl" no="405">
 											<tbody class="marker-wrapper resource_selectable_area h1032 time_table_tbody_area ui-selectable">
+												
+												
+												
+												
+												
+												<c:forEach var="item" varStatus="i" begin="0" end="23" step="1">
+													<tr>
+														<td class="rs-dualmarker rs_time_before ui-selectee" time="${item}"></td>
+													</tr>
+													<tr class="rs-dualmarker-21">
+														<td class="rs_time_after ui-selectee" time="${item}"></td>
+													</tr>
+												</c:forEach>
+												
+												
+												<!-- 
+												====== 예약존재하는경우 시작 ======
+												----- 첫번째 시간 
+												<tr> 
+													<td class="rs-dualmarker rs_time_before BKCP booking_detail_view ui-selectee" time="7" booking_no="1761" mode="start" rowspan="6" style="height: 132px;">관리자</td>
+												</tr>
+												<tr class="rs-dualmarker-21">
+													<td class="rs_time_after ui-selectee" time="7" style="display: none;"></td>
+												</tr>
+												----- 중간에 낀 시간 
+												<tr>
+													<td class="rs-dualmarker rs_time_before ui-selectee" time="8" style="display: none;"></td>
+												</tr>
+												<tr class="rs-dualmarker-21">
+													<td class="rs_time_after ui-selectee" time="8" style="display: none;"></td>
+												</tr>
+												----- 마지막 시간 
+												<tr>
+													<td class="rs-dualmarker rs_time_before ui-selectee" time="9" style="display: none;"></td>
+												</tr>
+												<tr class="rs-dualmarker-21">
+													<td class="rs_time_after BKCP booking_detail_view ui-selectee" time="9" booking_no="1761" mode="end" style="display: none;">관리자</td>
+												</tr>
+												====== 예약존재하는경우 끝 ======
+												 -->	
+												
+												
+												<!-- 
 												<tr>
 													<td class="rs-dualmarker rs_time_before ui-selectee" time="0"></td>
 												</tr>
@@ -231,30 +276,36 @@ $(document).ready(function() {
 												<tr class="rs-dualmarker-21">
 													<td class="rs_time_after ui-selectee" time="5"></td>
 												</tr>
+												
 												<tr>
 													<td class="rs-dualmarker rs_time_before ui-selectee" time="6"></td>
 												</tr>
 												<tr class="rs-dualmarker-21">
 													<td class="rs_time_after ui-selectee" time="6"></td>
 												</tr>
-												<tr>
+												
+												
+												<tr> 
 													<td class="rs-dualmarker rs_time_before BKCP booking_detail_view ui-selectee" time="7" booking_no="1761" mode="start" rowspan="6" style="height: 132px;">관리자</td>
 												</tr>
 												<tr class="rs-dualmarker-21">
 													<td class="rs_time_after ui-selectee" time="7" style="display: none;"></td>
 												</tr>
+												
 												<tr>
 													<td class="rs-dualmarker rs_time_before ui-selectee" time="8" style="display: none;"></td>
 												</tr>
 												<tr class="rs-dualmarker-21">
 													<td class="rs_time_after ui-selectee" time="8" style="display: none;"></td>
 												</tr>
+												
 												<tr>
 													<td class="rs-dualmarker rs_time_before ui-selectee" time="9" style="display: none;"></td>
 												</tr>
 												<tr class="rs-dualmarker-21">
 													<td class="rs_time_after BKCP booking_detail_view ui-selectee" time="9" booking_no="1761" mode="end" style="display: none;">관리자</td>
 												</tr>
+												
 												<tr>
 													<td class="rs-dualmarker rs_time_before ui-selectee" time="10"></td>
 												</tr>
@@ -338,465 +389,14 @@ $(document).ready(function() {
 												</tr>
 												<tr class="rs-dualmarker-21">
 													<td class="rs_time_after ui-selectee" time="23"></td>
-												</tr>
+												</tr> 
+												-->
 											</tbody>
 										</table>
 									</td>
 								</c:forEach>
 							</c:if>	
 							
-							<!-- 
-							<td style="border-bottom: none;">
-								<table class="rs-resource-tbl" no="405">
-									<tbody class="marker-wrapper resource_selectable_area h1032 time_table_tbody_area ui-selectable">
-										<tr>
-											<td class="rs-dualmarker rs_time_before BKCP booking_detail_view ui-selectee" time="0" booking_no="1756" mode="start" rowspan="48" style="height: 1056px;">관리자</td>
-										</tr>
-										<tr class="rs-dualmarker-21">
-											<td class="rs_time_after ui-selectee" time="0" style="display: none;"></td>
-										</tr>
-										<tr>
-											<td class="rs-dualmarker rs_time_before ui-selectee" time="1" style="display: none;"></td>
-										</tr>
-										<tr class="rs-dualmarker-21">
-											<td class="rs_time_after ui-selectee" time="1" style="display: none;"></td>
-										</tr>
-										<tr>
-											<td class="rs-dualmarker rs_time_before ui-selectee" time="2" style="display: none;"></td>
-										</tr>
-										<tr class="rs-dualmarker-21">
-											<td class="rs_time_after ui-selectee" time="2" style="display: none;"></td>
-										</tr>
-										<tr>
-											<td class="rs-dualmarker rs_time_before ui-selectee" time="3" style="display: none;"></td>
-										</tr>
-										<tr class="rs-dualmarker-21">
-											<td class="rs_time_after ui-selectee" time="3" style="display: none;"></td>
-										</tr>
-										<tr>
-											<td class="rs-dualmarker rs_time_before ui-selectee" time="4" style="display: none;"></td>
-										</tr>
-										<tr class="rs-dualmarker-21">
-											<td class="rs_time_after ui-selectee" time="4" style="display: none;"></td>
-										</tr>
-										<tr>
-											<td class="rs-dualmarker rs_time_before ui-selectee" time="5" style="display: none;"></td>
-										</tr>
-										<tr class="rs-dualmarker-21">
-											<td class="rs_time_after ui-selectee" time="5" style="display: none;"></td>
-										</tr>
-										<tr>
-											<td class="rs-dualmarker rs_time_before ui-selectee" time="6" style="display: none;"></td>
-										</tr>
-										<tr class="rs-dualmarker-21">
-											<td class="rs_time_after ui-selectee" time="6" style="display: none;"></td>
-										</tr>
-										<tr>
-											<td class="rs-dualmarker rs_time_before ui-selectee" time="7" style="display: none;"></td>
-										</tr>
-										<tr class="rs-dualmarker-21">
-											<td class="rs_time_after ui-selectee" time="7" style="display: none;"></td>
-										</tr>
-										<tr>
-											<td class="rs-dualmarker rs_time_before ui-selectee" time="8" style="display: none;"></td>
-										</tr>
-										<tr class="rs-dualmarker-21">
-											<td class="rs_time_after ui-selectee" time="8" style="display: none;"></td>
-										</tr>
-										<tr>
-											<td class="rs-dualmarker rs_time_before ui-selectee" time="9" style="display: none;"></td>
-										</tr>
-										<tr class="rs-dualmarker-21">
-											<td class="rs_time_after ui-selectee" time="9" style="display: none;"></td>
-										</tr>
-										<tr>
-											<td class="rs-dualmarker rs_time_before ui-selectee" time="10" style="display: none;"></td>
-										</tr>
-										<tr class="rs-dualmarker-21">
-											<td class="rs_time_after ui-selectee" time="10" style="display: none;"></td>
-										</tr>
-										<tr>
-											<td class="rs-dualmarker rs_time_before ui-selectee" time="11" style="display: none;"></td>
-										</tr>
-										<tr class="rs-dualmarker-21">
-											<td class="rs_time_after ui-selectee" time="11" style="display: none;"></td>
-										</tr>
-										<tr>
-											<td class="rs-dualmarker rs_time_before ui-selectee" time="12" style="display: none;"></td>
-										</tr>
-										<tr class="rs-dualmarker-21">
-											<td class="rs_time_after ui-selectee" time="12" style="display: none;"></td>
-										</tr>
-										<tr>
-											<td class="rs-dualmarker rs_time_before ui-selectee" time="13" style="display: none;"></td>
-										</tr>
-										<tr class="rs-dualmarker-21">
-											<td class="rs_time_after ui-selectee" time="13" style="display: none;"></td>
-										</tr>
-										<tr>
-											<td class="rs-dualmarker rs_time_before ui-selectee" time="14" style="display: none;"></td>
-										</tr>
-										<tr class="rs-dualmarker-21">
-											<td class="rs_time_after ui-selectee" time="14" style="display: none;"></td>
-										</tr>
-										<tr>
-											<td class="rs-dualmarker rs_time_before ui-selectee" time="15" style="display: none;"></td>
-										</tr>
-										<tr class="rs-dualmarker-21">
-											<td class="rs_time_after ui-selectee" time="15" style="display: none;"></td>
-										</tr>
-										<tr>
-											<td class="rs-dualmarker rs_time_before ui-selectee" time="16" style="display: none;"></td>
-										</tr>
-										<tr class="rs-dualmarker-21">
-											<td class="rs_time_after ui-selectee" time="16" style="display: none;"></td>
-										</tr>
-										<tr>
-											<td class="rs-dualmarker rs_time_before ui-selectee" time="17" style="display: none;"></td>
-										</tr>
-										<tr class="rs-dualmarker-21">
-											<td class="rs_time_after ui-selectee" time="17" style="display: none;"></td>
-										</tr>
-										<tr>
-											<td class="rs-dualmarker rs_time_before ui-selectee" time="18" style="display: none;"></td>
-										</tr>
-										<tr class="rs-dualmarker-21">
-											<td class="rs_time_after ui-selectee" time="18" style="display: none;"></td>
-										</tr>
-										<tr>
-											<td class="rs-dualmarker rs_time_before ui-selectee" time="19" style="display: none;"></td>
-										</tr>
-										<tr class="rs-dualmarker-21">
-											<td class="rs_time_after ui-selectee" time="19" style="display: none;"></td>
-										</tr>
-										<tr>
-											<td class="rs-dualmarker rs_time_before ui-selectee" time="20" style="display: none;"></td>
-										</tr>
-										<tr class="rs-dualmarker-21">
-											<td class="rs_time_after ui-selectee" time="20" style="display: none;"></td>
-										</tr>
-										<tr>
-											<td class="rs-dualmarker rs_time_before ui-selectee" time="21" style="display: none;"></td>
-										</tr>
-										<tr class="rs-dualmarker-21">
-											<td class="rs_time_after ui-selectee" time="21" style="display: none;"></td>
-										</tr>
-										<tr>
-											<td class="rs-dualmarker rs_time_before ui-selectee" time="22" style="display: none;"></td>
-										</tr>
-										<tr class="rs-dualmarker-21">
-											<td class="rs_time_after ui-selectee" time="22" style="display: none;"></td>
-										</tr>
-										<tr>
-											<td class="rs-dualmarker rs_time_before ui-selectee" time="23" style="display: none;"></td>
-										</tr>
-										<tr class="rs-dualmarker-21">
-											<td class="rs_time_after BKCP booking_detail_view ui-selectee" time="23" booking_no="1756" mode="end" style="display: none;">관리자</td>
-										</tr>
-									</tbody>
-								</table>
-							</td>
-							<td style="border-bottom: none;">
-								<table class="rs-resource-tbl" no="431">
-									<tbody class="marker-wrapper resource_selectable_area h1032 time_table_tbody_area ui-selectable">
-										<tr>
-											<td class="rs-dualmarker rs_time_before ui-selectee" time="0"></td>
-										</tr>
-										<tr class="rs-dualmarker-21">
-											<td class="rs_time_after ui-selectee" time="0"></td>
-										</tr>
-										<tr>
-											<td class="rs-dualmarker rs_time_before ui-selectee" time="1"></td>
-										</tr>
-										<tr class="rs-dualmarker-21">
-											<td class="rs_time_after ui-selectee" time="1"></td>
-										</tr>
-										<tr>
-											<td class="rs-dualmarker rs_time_before ui-selectee" time="2"></td>
-										</tr>
-										<tr class="rs-dualmarker-21">
-											<td class="rs_time_after ui-selectee" time="2"></td>
-										</tr>
-										<tr>
-											<td class="rs-dualmarker rs_time_before ui-selectee" time="3"></td>
-										</tr>
-										<tr class="rs-dualmarker-21">
-											<td class="rs_time_after ui-selectee" time="3"></td>
-										</tr>
-										<tr>
-											<td class="rs-dualmarker rs_time_before ui-selectee" time="4"></td>
-										</tr>
-										<tr class="rs-dualmarker-21">
-											<td class="rs_time_after ui-selectee" time="4"></td>
-										</tr>
-										<tr>
-											<td class="rs-dualmarker rs_time_before ui-selectee" time="5"></td>
-										</tr>
-										<tr class="rs-dualmarker-21">
-											<td class="rs_time_after ui-selectee" time="5"></td>
-										</tr>
-										<tr>
-											<td class="rs-dualmarker rs_time_before ui-selectee" time="6"></td>
-										</tr>
-										<tr class="rs-dualmarker-21">
-											<td class="rs_time_after ui-selectee" time="6"></td>
-										</tr>
-										<tr>
-											<td class="rs-dualmarker rs_time_before ui-selectee" time="7"></td>
-										</tr>
-										<tr class="rs-dualmarker-21">
-											<td class="rs_time_after ui-selectee" time="7"></td>
-										</tr>
-										<tr>
-											<td class="rs-dualmarker rs_time_before ui-selectee" time="8"></td>
-										</tr>
-										<tr class="rs-dualmarker-21">
-											<td class="rs_time_after ui-selectee" time="8"></td>
-										</tr>
-										<tr>
-											<td class="rs-dualmarker rs_time_before ui-selectee" time="9"></td>
-										</tr>
-										<tr class="rs-dualmarker-21">
-											<td class="rs_time_after ui-selectee" time="9"></td>
-										</tr>
-										<tr>
-											<td class="rs-dualmarker rs_time_before ui-selectee" time="10"></td>
-										</tr>
-										<tr class="rs-dualmarker-21">
-											<td class="rs_time_after ui-selectee" time="10"></td>
-										</tr>
-										<tr>
-											<td class="rs-dualmarker rs_time_before ui-selectee" time="11"></td>
-										</tr>
-										<tr class="rs-dualmarker-21">
-											<td class="rs_time_after ui-selectee" time="11"></td>
-										</tr>
-										<tr>
-											<td class="rs-dualmarker rs_time_before ui-selectee" time="12"></td>
-										</tr>
-										<tr class="rs-dualmarker-21">
-											<td class="rs_time_after ui-selectee" time="12"></td>
-										</tr>
-										<tr>
-											<td class="rs-dualmarker rs_time_before ui-selectee" time="13"></td>
-										</tr>
-										<tr class="rs-dualmarker-21">
-											<td class="rs_time_after ui-selectee" time="13"></td>
-										</tr>
-										<tr>
-											<td class="rs-dualmarker rs_time_before ui-selectee" time="14"></td>
-										</tr>
-										<tr class="rs-dualmarker-21">
-											<td class="rs_time_after ui-selectee" time="14"></td>
-										</tr>
-										<tr>
-											<td class="rs-dualmarker rs_time_before ui-selectee" time="15"></td>
-										</tr>
-										<tr class="rs-dualmarker-21">
-											<td class="rs_time_after ui-selectee" time="15"></td>
-										</tr>
-										<tr>
-											<td class="rs-dualmarker rs_time_before ui-selectee" time="16"></td>
-										</tr>
-										<tr class="rs-dualmarker-21">
-											<td class="rs_time_after ui-selectee" time="16"></td>
-										</tr>
-										<tr>
-											<td class="rs-dualmarker rs_time_before ui-selectee" time="17"></td>
-										</tr>
-										<tr class="rs-dualmarker-21">
-											<td class="rs_time_after ui-selectee" time="17"></td>
-										</tr>
-										<tr>
-											<td class="rs-dualmarker rs_time_before ui-selectee" time="18"></td>
-										</tr>
-										<tr class="rs-dualmarker-21">
-											<td class="rs_time_after ui-selectee" time="18"></td>
-										</tr>
-										<tr>
-											<td class="rs-dualmarker rs_time_before ui-selectee" time="19"></td>
-										</tr>
-										<tr class="rs-dualmarker-21">
-											<td class="rs_time_after ui-selectee" time="19"></td>
-										</tr>
-										<tr>
-											<td class="rs-dualmarker rs_time_before ui-selectee" time="20"></td>
-										</tr>
-										<tr class="rs-dualmarker-21">
-											<td class="rs_time_after ui-selectee" time="20"></td>
-										</tr>
-										<tr>
-											<td class="rs-dualmarker rs_time_before ui-selectee" time="21"></td>
-										</tr>
-										<tr class="rs-dualmarker-21">
-											<td class="rs_time_after ui-selectee" time="21"></td>
-										</tr>
-										<tr>
-											<td class="rs-dualmarker rs_time_before ui-selectee" time="22"></td>
-										</tr>
-										<tr class="rs-dualmarker-21">
-											<td class="rs_time_after ui-selectee" time="22"></td>
-										</tr>
-										<tr>
-											<td class="rs-dualmarker rs_time_before ui-selectee" time="23"></td>
-										</tr>
-										<tr class="rs-dualmarker-21">
-											<td class="rs_time_after ui-selectee" time="23"></td>
-										</tr>
-									</tbody>
-								</table>
-							</td>
-							<td style="border-bottom: none;">
-								<table class="rs-resource-tbl" no="432">
-									<tbody class="marker-wrapper resource_selectable_area h1032 time_table_tbody_area ui-selectable">
-										<tr>
-											<td class="rs-dualmarker rs_time_before ui-selectee" time="0"></td>
-										</tr>
-										<tr class="rs-dualmarker-21">
-											<td class="rs_time_after ui-selectee" time="0"></td>
-										</tr>
-										<tr>
-											<td class="rs-dualmarker rs_time_before ui-selectee" time="1"></td>
-										</tr>
-										<tr class="rs-dualmarker-21">
-											<td class="rs_time_after ui-selectee" time="1"></td>
-										</tr>
-										<tr>
-											<td class="rs-dualmarker rs_time_before ui-selectee" time="2"></td>
-										</tr>
-										<tr class="rs-dualmarker-21">
-											<td class="rs_time_after ui-selectee" time="2"></td>
-										</tr>
-										<tr>
-											<td class="rs-dualmarker rs_time_before ui-selectee" time="3"></td>
-										</tr>
-										<tr class="rs-dualmarker-21">
-											<td class="rs_time_after ui-selectee" time="3"></td>
-										</tr>
-										<tr>
-											<td class="rs-dualmarker rs_time_before ui-selectee" time="4"></td>
-										</tr>
-										<tr class="rs-dualmarker-21">
-											<td class="rs_time_after ui-selectee" time="4"></td>
-										</tr>
-										<tr>
-											<td class="rs-dualmarker rs_time_before ui-selectee" time="5"></td>
-										</tr>
-										<tr class="rs-dualmarker-21">
-											<td class="rs_time_after ui-selectee" time="5"></td>
-										</tr>
-										<tr>
-											<td class="rs-dualmarker rs_time_before ui-selectee" time="6"></td>
-										</tr>
-										<tr class="rs-dualmarker-21">
-											<td class="rs_time_after ui-selectee" time="6"></td>
-										</tr>
-										<tr>
-											<td class="rs-dualmarker rs_time_before ui-selectee" time="7"></td>
-										</tr>
-										<tr class="rs-dualmarker-21">
-											<td class="rs_time_after ui-selectee" time="7"></td>
-										</tr>
-										<tr>
-											<td class="rs-dualmarker rs_time_before ui-selectee" time="8"></td>
-										</tr>
-										<tr class="rs-dualmarker-21">
-											<td class="rs_time_after ui-selectee" time="8"></td>
-										</tr>
-										<tr>
-											<td class="rs-dualmarker rs_time_before ui-selectee" time="9"></td>
-										</tr>
-										<tr class="rs-dualmarker-21">
-											<td class="rs_time_after ui-selectee" time="9"></td>
-										</tr>
-										<tr>
-											<td class="rs-dualmarker rs_time_before ui-selectee" time="10"></td>
-										</tr>
-										<tr class="rs-dualmarker-21">
-											<td class="rs_time_after ui-selectee" time="10"></td>
-										</tr>
-										<tr>
-											<td class="rs-dualmarker rs_time_before ui-selectee" time="11"></td>
-										</tr>
-										<tr class="rs-dualmarker-21">
-											<td class="rs_time_after ui-selectee" time="11"></td>
-										</tr>
-										<tr>
-											<td class="rs-dualmarker rs_time_before ui-selectee" time="12"></td>
-										</tr>
-										<tr class="rs-dualmarker-21">
-											<td class="rs_time_after ui-selectee" time="12"></td>
-										</tr>
-										<tr>
-											<td class="rs-dualmarker rs_time_before ui-selectee" time="13"></td>
-										</tr>
-										<tr class="rs-dualmarker-21">
-											<td class="rs_time_after ui-selectee" time="13"></td>
-										</tr>
-										<tr>
-											<td class="rs-dualmarker rs_time_before ui-selectee" time="14"></td>
-										</tr>
-										<tr class="rs-dualmarker-21">
-											<td class="rs_time_after ui-selectee" time="14"></td>
-										</tr>
-										<tr>
-											<td class="rs-dualmarker rs_time_before ui-selectee" time="15"></td>
-										</tr>
-										<tr class="rs-dualmarker-21">
-											<td class="rs_time_after ui-selectee" time="15"></td>
-										</tr>
-										<tr>
-											<td class="rs-dualmarker rs_time_before ui-selectee" time="16"></td>
-										</tr>
-										<tr class="rs-dualmarker-21">
-											<td class="rs_time_after ui-selectee" time="16"></td>
-										</tr>
-										<tr>
-											<td class="rs-dualmarker rs_time_before ui-selectee" time="17"></td>
-										</tr>
-										<tr class="rs-dualmarker-21">
-											<td class="rs_time_after ui-selectee" time="17"></td>
-										</tr>
-										<tr>
-											<td class="rs-dualmarker rs_time_before ui-selectee" time="18"></td>
-										</tr>
-										<tr class="rs-dualmarker-21">
-											<td class="rs_time_after ui-selectee" time="18"></td>
-										</tr>
-										<tr>
-											<td class="rs-dualmarker rs_time_before ui-selectee" time="19"></td>
-										</tr>
-										<tr class="rs-dualmarker-21">
-											<td class="rs_time_after ui-selectee" time="19"></td>
-										</tr>
-										<tr>
-											<td class="rs-dualmarker rs_time_before ui-selectee" time="20"></td>
-										</tr>
-										<tr class="rs-dualmarker-21">
-											<td class="rs_time_after ui-selectee" time="20"></td>
-										</tr>
-										<tr>
-											<td class="rs-dualmarker rs_time_before ui-selectee" time="21"></td>
-										</tr>
-										<tr class="rs-dualmarker-21">
-											<td class="rs_time_after ui-selectee" time="21"></td>
-										</tr>
-										<tr>
-											<td class="rs-dualmarker rs_time_before ui-selectee" time="22"></td>
-										</tr>
-										<tr class="rs-dualmarker-21">
-											<td class="rs_time_after ui-selectee" time="22"></td>
-										</tr>
-										<tr>
-											<td class="rs-dualmarker rs_time_before ui-selectee" time="23"></td>
-										</tr>
-										<tr class="rs-dualmarker-21">
-											<td class="rs_time_after ui-selectee" time="23"></td>
-										</tr>
-									</tbody>
-								</table>
-							</td> 
-							-->
 						</tr>
 					</tbody>
 				</table>

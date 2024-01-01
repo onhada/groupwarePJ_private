@@ -94,14 +94,14 @@ public interface ReservationService {
 	void addReservation(Map<String, Object> paraMap);
 	
 	/** 
-	* @Method Name  : getmyReservationList 
+	* @Method Name  : getReservationList 
 	* @작성일   : Dec 31, 2023 
 	* @작성자   : hada 
 	* @변경이력  : 
-	* @Method 설명 : 나의 예약 목록 가져오기
+	* @Method 설명 : 예약 목록 가져오기
 	* @return 
 	*/
-	List<ReservationVO> getmyReservationList(Map<String, Object> paraMap);
+	List<ReservationVO> getReservationList(Map<String, Object> paraMap);
 
 	/** 
 	* @Method Name  : getReservationInfoDetail 
@@ -135,5 +135,53 @@ public interface ReservationService {
 	* @return 
 	*/
 	int delReservation(Map<String, Object> paraMap);
+	
+	/** 
+	* @Method Name  : returnRsource 
+	* @작성일   : Jan 1, 2024 
+	* @작성자   : hada 
+	* @변경이력  : 
+	* @Method 설명 : 예약 자원 반납하기
+	* @param paraMap
+	* @return 
+	*/
+	int returnRsource(Map<String, Object> paraMap);
+	
+	/** 
+	* @Method Name  : isAdmin 
+	* @작성일   : Jan 1, 2024 
+	* @작성자   : hada 
+	* @변경이력  : 
+	* @Method 설명 : 로그인 사원이 인사관리자인지 확인
+	* @param paraMap
+	* @return 
+	*/
+	String isAdmin(Map<String, Object> paraMap);
+
+	/** 
+	* @Method Name  : getTotalCount 
+	* @작성일   : Jan 1, 2024 
+	* @작성자   : hada 
+	* @변경이력  : 
+	* @Method 설명 : 총 예약 건수 가져오기
+	* @param paraMap
+	* @return 
+	*/
+	int getTotalCount(Map<String, Object> paraMap);
+
+	/** 
+	* @Method Name  : rsvApprove 
+	* @작성일   : Jan 2, 2024 
+	* @작성자   : hada 
+	* @변경이력  : 
+	* @Method 설명 : 예약 승인하기
+	* @param paraMap
+	* @return 
+	*/
+	int rsvApprove(Map<String, Object> paraMap);
+
+	
+
+	
 
 }
