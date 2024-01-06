@@ -70,63 +70,67 @@ function toggleShowHide(id){
 					</c:forEach>
 					</c:if>
 					
-					<li class="el-collapse gt-mt-8">
-						<div class="el-collapse-item is-active">
-							<div class="el-collapse-item__header menu-item" id="reserveManage" onclick="toggleShowHide(this.id)">
-								<span class="link gt-pl-10">
-									<span class="collapse-prefix-icon">
-										<i class="fal fa-chevron-down" id="toggleIcon"></i>
+					<!--  관리자 카테고리 : 예약 관리자인 경우에만 보여주기 -->
+					<c:if test="${sessionScope.loginUser.empId == requestScope.rsvAdminEmpId}">
+						<li class="el-collapse gt-mt-8">
+							<div class="el-collapse-item is-active">
+								<div class="el-collapse-item__header menu-item" id="reserveManage" onclick="toggleShowHide(this.id)">
+									<span class="link gt-pl-10">
+										<span class="collapse-prefix-icon">
+											<i class="fal fa-chevron-down" id="toggleIcon"></i>
+										</span>
+										<span class="flex-truncate collapse show">예약 관리</span>
 									</span>
-									<span class="flex-truncate collapse show">예약 관리</span>
-								</span>
+								</div>
+								<div class="el-collapse-item__wrap" id="reserveManageToggle" style="display: block;">
+									<ul class="depth2 show">
+										<!-- <ul class="depth2 hide show"> 였는데 안 보여서 hide 지움  -->
+										<li class="menu-item">
+											<a href="<%= ctxPath%>/reservation/approvalManageAdmin.gw" title="승인 관리" class="link" >
+												<span class="link-prefix-icon">
+													<i class="gis gi-signature"></i>
+												</span>
+												<span class="flex-truncate">승인 관리</span>
+											</a>
+										</li>
+										<li class="menu-item">
+											<a href="<%= ctxPath%>/reservation/returnManageAdmin.gw" title="반납 관리" class="link">
+												<span class="link-prefix-icon">
+													<i class="gis gi-return"></i>
+												</span>
+												<span class="flex-truncate">반납 관리</span>
+											</a>
+										</li>
+										<li class="menu-item">
+											<a href="<%= ctxPath%>/reservation/categoryManageAdmin.gw" title="카테고리 관리" class="link">
+												<span class="link-prefix-icon">
+													<i class="gis gi-category-setting"></i>
+												</span>
+												<span class="flex-truncate">카테고리 관리</span>
+											</a>
+										</li>
+										<li class="menu-item">
+											<a href="<%= ctxPath%>/reservation/resourceManageAdmin.gw" title="자원 관리" class="link">
+												<span class="link-prefix-icon">
+													<i class="gis gi-wrench"></i>
+												</span>
+												<span class="flex-truncate">자원 관리</span>
+											</a>
+										</li>
+										<li class="menu-item">
+											<a href="<%= ctxPath%>/reservation/rsvAdminManageAdmin.gw" title="예약 관리자" class="link">
+												<span class="link-prefix-icon">
+													<i class="gis gi-user-cog"></i>
+												</span>
+												<span class="flex-truncate">예약 관리자</span>
+											</a>
+										</li>
+									</ul>
+								</div>
 							</div>
-							<div class="el-collapse-item__wrap" id="reserveManageToggle" style="display: block;">
-								<ul class="depth2 show">
-									<!-- <ul class="depth2 hide show"> 였는데 안 보여서 hide 지움  -->
-									<li class="menu-item">
-										<a class="link" href="/gabia.biz/booking/bookingManage/acknowledgeManage" title="승인 관리">
-											<span class="link-prefix-icon">
-												<i class="gis gi-signature"></i>
-											</span>
-											<span class="flex-truncate">승인 관리</span>
-										</a>
-									</li>
-									<li class="menu-item">
-										<a href="/gabia.biz/booking/bookingManage/returnManage" title="반납 관리" class="link">
-											<span class="link-prefix-icon">
-												<i class="gis gi-return"></i>
-											</span>
-											<span class="flex-truncate">반납 관리</span>
-										</a>
-									</li>
-									<li class="menu-item">
-										<a href="/gabia.biz/booking/bookingManage/categoryManage" title="카테고리 관리" class="link">
-											<span class="link-prefix-icon">
-												<i class="gis gi-category-setting"></i>
-											</span>
-											<span class="flex-truncate">카테고리 관리</span>
-										</a>
-									</li>
-									<li class="menu-item">
-										<a href="/gabia.biz/booking/bookingManage/resourceManage" title="자원 관리" class="link">
-											<span class="link-prefix-icon">
-												<i class="gis gi-wrench"></i>
-											</span>
-											<span class="flex-truncate">자원 관리</span>
-										</a>
-									</li>
-									<li class="menu-item">
-										<a href="/gabia.biz/booking/bookingManage/bookingAdmin" title="예약 관리자" class="link">
-											<span class="link-prefix-icon">
-												<i class="gis gi-user-cog"></i>
-											</span>
-											<span class="flex-truncate">예약 관리자</span>
-										</a>
-									</li>
-								</ul>
-							</div>
-						</div>
-					</li>
+						</li>
+					</c:if>
+					
 				</ul>
 			</nav>
 		</div>

@@ -6,6 +6,9 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.spring.app.common.domain.EmployeeVO;
 import com.spring.app.reservation.domain.ReservationVO;
@@ -35,6 +38,14 @@ public class ReservationService_imple implements ReservationService {
 	}
 	
 	
+	// === 카테고리관리_자원카테고리 목록 가져오기 === //
+	@Override
+	public List<Map<String, String>> getAdminResourceCategoryList() {
+		List<Map<String, String>> adminResourceCategoryList =  dao.getAdminResourceCategoryList();
+		return adminResourceCategoryList;
+	}
+	
+	
 	// === 자원 목록 가져오기 === //
 	@Override
 	public List<Map<String, String>> getResourceList(Map<String, Object> paraMap) {
@@ -42,6 +53,14 @@ public class ReservationService_imple implements ReservationService {
 		return resourceList;
 	}
 
+	
+	// === 관리자_자원 목록 가져오기 === //
+	@Override
+	public List<Map<String, String>> getAdminResourceList(Map<String, Object> paraMap) {
+		List<Map<String, String>> adminResourceList =  dao.getAdminResourceList(paraMap);
+		return adminResourceList;
+	}
+	
 
 	// === 자원카테고리 정보 가져오기 === //
 	@Override
@@ -51,6 +70,13 @@ public class ReservationService_imple implements ReservationService {
 	}
 
 	
+	// === 관리자_자원카테고리 정보 가져오기 === //
+	@Override
+	public Map<String, Object> getAdminResourceCategoryInfo(Map<String, Object> paraMap) {
+		Map<String, Object> adminResourceCategoryInfo_map = dao.getAdminResourceCategoryInfo(paraMap);
+		return adminResourceCategoryInfo_map;
+	}
+	
 	// === 자원 정보 가져오기 === //
 	@Override
 	public Map<String, Object> getResourceInfo(Map<String, Object> paraMap) {
@@ -58,7 +84,13 @@ public class ReservationService_imple implements ReservationService {
 		return resourceInfo_map;
 	}
 
-
+	// === 관리자_자원 정보 가져오기 === //
+	@Override
+	public Map<String, Object> getAdminResourceInfo(Map<String, Object> paraMap) {
+		Map<String, Object> adminResourceInfo_map = dao.getAdminResourceInfo(paraMap);
+		return adminResourceInfo_map;
+	}
+	
 	// === 모든 자원 목록 가져오기 === //
 	@Override
 	public List<Map<String, String>> getAllResourceList() {
@@ -152,9 +184,97 @@ public class ReservationService_imple implements ReservationService {
 		return result;
 	}
 
+	
+	// === 예약 반려하기 === //
+	@Override
+	public int rsvReject(Map<String, Object> paraMap) {
+		int result = dao.rsvReject(paraMap);
+		return result;
+	}
+
+
+	// === 카테고리 삭제하기 === //
+	@Override
+	public int categoryDel(Map<String, Object> paraMap) {
+		int result = dao.categoryDel(paraMap);
+		return result;
+	}
+
+
+	// === 자원 카테고리 추가하기 === //
+	@Override
+	public int categoryAdd(Map<String, Object> paraMap) {
+		int n = dao.categoryAdd(paraMap);
+		return n;
+	}
+
+
+	// === 자원 카테고리 수정하기 === //
+	@Override
+	public int categoryEdit(Map<String, Object> paraMap) {
+		int n = dao.categoryEdit(paraMap);
+		return n;
+	}
+
+
+	// === 자원 추가하기 === //
+	@Override
+	public int resourceAdd(Map<String, Object> paraMap) {
+		int n = dao.resourceAdd(paraMap);
+		return n;
+	}
+
+
+	// === 자원 수정하기 === //
+	@Override
+	public int resourceEdit(Map<String, Object> paraMap) {
+		int n = dao.resourceEdit(paraMap);
+		return n;
+	}
+
+
+	// === 존재하는 첫번째 카테고리id 가져오기 === //
+	@Override
+	public String getFirstCategoryId() {
+		String id = dao.getFirstCategoryId();
+		return id;
+	}
+
+
+	// === 자원 삭제하기 === //
+	@Override
+	public int resourceDel(Map<String, Object> paraMap) {
+		int result = dao.resourceDel(paraMap);
+		return result;
+	}
+
+
+	// === 예약관리자 목록 가져오기 === //
+	@Override
+	public List<Map<String, String>> getRsvAdminList() {
+		List<Map<String, String>> rsvAdminList = dao.getRsvAdminList();
+		return rsvAdminList;
+	}
+
+
+	// === 예약관리자 총 인원수 가져오기 === //
+	@Override
+	public int getRsvAdminTotalCount() {
+		int rsvAdminTotalCount = dao.getRsvAdminTotalCount();
+		return rsvAdminTotalCount;
+	}
+
+
+	// === 예약된 시간을 표시하기 위한 자원 목록 가져오기 === //
+	@Override
+	public List<Map<String, String>> getReservationMarkList(Map<String, Object> paraMap) {
+		List<Map<String, String>> reservationMarkList = dao.getReservationMarkList(paraMap);
+		return reservationMarkList;
+	}
 
 	
-
+	
+	
 
 	
 }

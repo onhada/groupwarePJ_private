@@ -44,14 +44,248 @@ $(document).ready(function() {
 	
 	
 	
+	$.ajax({
+    	url : "<%=ctxPath%>/reservation/getReservationMarkList.gw",
+		type : "get",
+		data : {"resourceCategoryId":<%= request.getParameter("resourceCategoryId")%>,
+				"searchDay":$("input#viewReservationDate").val()},	
+		dataType : "json",
+		async : false,
+		success : function(json) {
+			if(json.length > 0){ // 성공한 경우 
+				
+				$.each(json, function(index, item){
+				
+					if(item.rsvDate == $("input.datepicker").val() ){ // 날짜가 일치하는 경우
+				
+						const table = document.querySelectorAll('#markTable');
+						for (var i = 0; i < table.length; i++) {
+							
+							var tableOne = table.item(i);
+						
+							
+						  	if(item.fk_resourceId == tableOne.getAttribute("resourceid")){ // 자원id가 일치하는 경우 
+					
+								 
+						  		var endHour = item.endTime.substring(0,2);	
+								if(endHour.substring(0,1) == 0){
+									endHour = endHour.substring(1,2);
+								}
+								var startHour = item.startTime.substring(0,2);
+								if(startHour.substring(0,1)==0){
+									startHour = startHour.substring(1,2);
+								}
+								var timeValue = endHour - startHour;
+								
+								
+									
+									var id1 = "#markTable > tbody#resourceId_"+item.fk_resourceId+" > tr > td.rs_time_before";
+									var td1 = document.querySelectorAll(id1);
+									for (var j = 0; j < td1.length; j++) {
+										var td1One = td1.item(j);
+									
+										
+										for(var i = 0; i<timeValue; i++){
+											var repeat = Number(startHour) + i;
+									
+											if(repeat == td1One.getAttribute("time")){
+												td1One.setAttribute("class", "rs-dualmarker rs_time_before BKCP booking_detail_view ui-selectee");
+											}
+										}
+										
+									}
+					
+								
+								var id2 = "#markTable > tbody#resourceId_"+item.fk_resourceId+" > tr > td.rs_time_after";
+								var td2 = document.querySelectorAll(id2);
+								for (var l = 0; l < td2.length; l++) {
+									var td2One = td2.item(l);
+									for(var k = 0; k<timeValue; k++){
+										var repeat2 = Number(startHour) + k;
+										if(repeat2 == td2One.getAttribute("time")){
+											td2One.setAttribute("class", "rs_time_after BKCP booking_detail_view ui-selectee");
+										}	
+									}
+								}
+								
+								 
+								
+						  	}
+							
+								
+							}
+						  
+						  
+						}// end of if(item.rsvDate == $("input.datepicker").val())----------
+						
+						
+						
+						
+					
+					
+				});// end of $.each(json, function(index, item)---------
+				
+				
+			
+				
+			}// end of if(json.length > 0)----------------------
+			
+			
+			else{ // 자원 반납 실패한 경우
+				alert("승인에ddd 실패했습니다.");
+			}
+			
+			
+			
+		},// end of success-----
+		error : function(request, status, error) {
+			alert("code: " + request.status + "\n" + "message: " + request.responseText + "\n" + "error: " + error);
+		}
+	});	
+	
 	
 	
 	
 })// end of $(document).ready(function(){})-------------------------
 
-
-
 // Function Declaration
+function changeDate(){ // 수정필 ... 이거 어카지 ???? 
+		
+		console.log($("input#viewReservationDate").val());
+		
+		// 이전 예약된 기록이 색칠된 부분으로 남아있는 것 지우기 
+		var id1 = "#markTable > tbody > tr > td.rs_time_before";
+		var td1 = document.querySelectorAll(id1);
+		for (var j = 0; j < td1.length; j++) {
+			var td1One = td1.item(j);
+				
+					td1One.setAttribute("class", "rs-dualmarker rs_time_before ui-selectee");
+				
+					
+			
+		}
+		
+//	}
+	
+	
+	var id2 = "#markTable > tbody > tr > td.rs_time_after";
+	var td2 = document.querySelectorAll(id2);
+	for (var l = 0; l < td2.length; l++) {
+		var td2One = td2.item(l);
+			
+				td2One.setAttribute("class", "rs_time_after ui-selectee");
+			
+	}
+	
+		
+		
+		
+		
+		
+	$.ajax({
+    	url : "<%=ctxPath%>/reservation/getReservationMarkList.gw",
+		type : "get",
+		data : {"resourceCategoryId":<%= request.getParameter("resourceCategoryId")%>,
+				"searchDay":$("input#viewReservationDate").val()},	
+		dataType : "json",
+		async : false,
+		success : function(json) {
+			if(json.length > 0){ // 성공한 경우 
+				
+				$.each(json, function(index, item){
+					
+					if(item.rsvDate == $("input.datepicker").val() ){ // 날짜가 일치하는 경우
+						console.log("="+$("input.datepicker").val());
+						const table = document.querySelectorAll('#markTable');
+						for (var i = 0; i < table.length; i++) {
+							
+							var tableOne = table.item(i);
+						
+						  	if(item.fk_resourceId == tableOne.getAttribute("resourceid")){ // 자원id가 일치하는 경우 
+						
+						  		var endHour = item.endTime.substring(0,2);	
+								if(endHour.substring(0,1) == 0){
+									endHour = endHour.substring(1,2);
+								}
+								var startHour = item.startTime.substring(0,2);
+								if(startHour.substring(0,1)==0){
+									startHour = startHour.substring(1,2);
+								}
+								var timeValue = endHour - startHour;
+								
+									var id1 = "#markTable > tbody#resourceId_"+item.fk_resourceId+" > tr > td.rs_time_before";
+									var td1 = document.querySelectorAll(id1);
+									for (var j = 0; j < td1.length; j++) {
+										var td1One = td1.item(j);
+										console.log(">>"+td1One);		
+										
+										for(var i = 0; i<timeValue; i++){
+											var repeat = Number(startHour) + i;
+											console.log("시작시간 : " + Number(startHour));	console.log("typeof startHour"+typeof startHour);
+											console.log("시작시간+i : "+repeat);	console.log("typeof repeat"+typeof repeat);
+											if(repeat == td1One.getAttribute("time")){
+												td1One.setAttribute("class", "rs-dualmarker rs_time_before BKCP booking_detail_view ui-selectee");
+											}
+										}
+										
+									}
+									
+							
+								
+								
+								var id2 = "#markTable > tbody#resourceId_"+item.fk_resourceId+" > tr > td.rs_time_after";
+								var td2 = document.querySelectorAll(id2);
+								for (var l = 0; l < td2.length; l++) {
+									var td2One = td2.item(l);
+									for(var k = 0; k<timeValue; k++){
+										var repeat2 = Number(startHour) + k;
+										if(repeat2 == td2One.getAttribute("time")){
+											td2One.setAttribute("class", "rs_time_after BKCP booking_detail_view ui-selectee");
+										}	
+									}
+								}
+								
+								 
+								
+						  	}
+								
+								
+							}
+						  
+						  
+						}// end of if(item.rsvDate == $("input.datepicker").val())----------
+						
+				});// end of $.each(json, function(index, item)---------
+				
+				
+			
+				
+			}// end of if(json.length > 0)----------------------
+			
+			
+			else{ // 자원 반납 실패한 경우
+				alert("승인에ddd 실패했습니다.");
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			}
+			
+			
+			
+		},// end of success-----
+		error : function(request, status, error) {
+			alert("code: " + request.status + "\n" + "message: " + request.responseText + "\n" + "error: " + error);
+		}
+	});	
+	
+}
+
 
 
 
@@ -70,6 +304,8 @@ $(document).ready(function() {
 	</div>
 	<div class="content_inbox" style="overflow-y: hidden;">
 		<!-- Contents -->
+		<c:if test="${not empty requestScope.resourceList || fn:length(requestScope.resourceList) > 0}">
+								
 		<div class="rs-wrap" style="margin: 0;">
 			<!-- 검색이 존재할 경우 -->
 			<ul class="tabType1 mgb_30 hide" id="booking_search_tab_ul">
@@ -84,18 +320,18 @@ $(document).ready(function() {
 			<div class="cal_head" id="cal_head_fixed_div" style="padding-right: 28px; padding-left: 20px;">
 				
 				<div id="cal_head_fixed_div_area">
-					<button type="button" class="icon directleft" id="moveDate" onclick="moveDate('prev');">
+					<!-- <button type="button" class="icon directleft" id="moveDate" onclick="moveDate('prev');">
 						<span class="blind">전일 이동</span>
-					</button>
-					<input type="text" id="viewReservationDate" class="num datepicker" style="width: 110px; border: none; margin-right: 5px;" readonly="">
+					</button> -->
+					<input type="text" id="viewReservationDate" class="num datepicker" onchange="changeDate();" style="width: 110px; border: none; margin-right: 5px;" readonly="">
 					<!-- <span id="week_name_span">(금)</span> -->
 					<label for="viewReservationDate"> 
 						<img class="ui-datepicker-trigger icon month" src="<%=ctxPath%>/resources/image/icon/sp_icon.png" alt="예약 날짜 선택" title="예약 날짜 선택">
 					</label>
-					<button type="button" class="icon directright" onclick="moveDate('next');">
+					<!-- <button type="button" class="icon directright" onclick="moveDate('next');">
 						<span class="blind">익일 이동</span>
-					</button>
-					<button type="button" class="today-btn vt" onclick="moveDate('today');">오늘</button>
+					</button> -->
+					<!-- <button type="button" class="today-btn vt" onclick="moveDate('today');">오늘</button> -->
 				</div>
 				
 				<div id="tbl_head_fixed_div_area">
@@ -131,7 +367,6 @@ $(document).ready(function() {
 
 								<%-- 자원 목록 가져오기 --%>
 								<c:if test="${not empty requestScope.resourceList || fn:length(requestScope.resourceList) > 0}">
-									
 									<c:forEach var="resource" items="${requestScope.resourceList}">
 										<td style="border-bottom: none;">
 											<table class="rs-resource-tbl" resourceId="${resource.resourceId}">
@@ -157,7 +392,7 @@ $(document).ready(function() {
 										</td>
 									</c:forEach>
 								</c:if>
-
+								
 							</tr>
 						</tbody>
 					</table>
@@ -195,14 +430,22 @@ $(document).ready(function() {
 							<c:if test="${not empty requestScope.resourceList || fn:length(requestScope.resourceList) > 0}">
 								<c:forEach var="resource" items="${requestScope.resourceList}">
 									<td style="border-bottom: none;">
-										<table class="rs-resource-tbl" no="405">
-											<tbody class="marker-wrapper resource_selectable_area h1032 time_table_tbody_area ui-selectable">
+										<table class="rs-resource-tbl" id="markTable" resourceId="${resource.resourceId}">
+											<tbody id="resourceId_${resource.resourceId}" class="marker-wrapper resource_selectable_area h1032 time_table_tbody_area ui-selectable">
 												
 												
 												
 												
 												
-												<c:forEach var="item" varStatus="i" begin="0" end="23" step="1">
+												<c:forEach var="item" varStatus="i" begin="0" end="9" step="1">
+													<tr>
+														<td class="rs-dualmarker rs_time_before ui-selectee" time="${item}"></td>
+													</tr>
+													<tr class="rs-dualmarker-21">
+														<td class="rs_time_after ui-selectee" time="${item}"></td>
+													</tr>
+												</c:forEach>
+												<c:forEach var="item" varStatus="i" begin="10" end="23" step="1">
 													<tr>
 														<td class="rs-dualmarker rs_time_before ui-selectee" time="${item}"></td>
 													</tr>
@@ -402,6 +645,12 @@ $(document).ready(function() {
 				</table>
 			</div>
 		</div>
+		</c:if>
+		<c:if test="${empty requestScope.resourceList || fn:length(requestScope.resourceList) == 0}">
+			<div style="font-size: 20px; padding-left: 20px;">
+				해당 카테고리 내 존재하는 자원이 없습니다. 
+			</div>
+		</c:if>
 		<!-- Contents End-->
 	</div>
 

@@ -3,7 +3,6 @@ package com.spring.app.reservation.service;
 import java.util.List;
 import java.util.Map;
 
-import com.spring.app.common.domain.EmployeeVO;
 import com.spring.app.reservation.domain.ReservationVO;
 
 public interface ReservationService {
@@ -17,6 +16,17 @@ public interface ReservationService {
 	* @return 
 	*/
 	List<Map<String, String>> getResourceCategoryList();
+	
+	/** 
+	* @Method Name  : getAdminResourceCategoryList 
+	* @작성일   : Jan 6, 2024 
+	* @작성자   : hada 
+	* @변경이력  : 
+	* @Method 설명 : 카테고리관리_자원카테고리 목록 가져오기
+	* @return 
+	*/
+	List<Map<String, String>> getAdminResourceCategoryList();
+	
 
 	/** 
 	 * @param paraMap 
@@ -28,6 +38,17 @@ public interface ReservationService {
 	* @return 
 	*/
 	List<Map<String, String>> getResourceList(Map<String, Object> paraMap);
+	
+	/** 
+	* @Method Name  : getAdminResourceList 
+	* @작성일   : Jan 6, 2024 
+	* @작성자   : hada 
+	* @변경이력  : 
+	* @Method 설명 : 관리자_자원 목록 가져오기
+	* @param paraMap
+	* @return 
+	*/
+	List<Map<String, String>> getAdminResourceList(Map<String, Object> paraMap);
 
 	/** 
 	* @Method Name  : getResourceCategoryInfo_map 
@@ -39,7 +60,20 @@ public interface ReservationService {
 	* @return 
 	*/
 	Map<String, Object> getResourceCategoryInfo(Map<String, Object> paraMap);
-
+	
+	
+	/** 
+	* @Method Name  : getAdminResourceCategoryInfo 
+	* @작성일   : Jan 6, 2024 
+	* @작성자   : hada 
+	* @변경이력  : 
+	* @Method 설명 : 관리자_자원카테고리 정보 가져오기
+	* @param paraMap
+	* @return 
+	*/
+	Map<String, Object> getAdminResourceCategoryInfo(Map<String, Object> paraMap);
+	
+	
 	/** 
 	* @Method Name  : getResourceInfo 
 	* @작성일   : Dec 30, 2023 
@@ -50,7 +84,18 @@ public interface ReservationService {
 	* @return 
 	*/
 	Map<String, Object> getResourceInfo(Map<String, Object> paraMap);
-
+	
+	/** 
+	* @Method Name  : getAdminResourceInfo 
+	* @작성일   : Jan 6, 2024 
+	* @작성자   : hada 
+	* @변경이력  : 
+	* @Method 설명 : 관리자_자원 정보 가져오기
+	* @param paraMap
+	* @return 
+	*/
+	Map<String, Object> getAdminResourceInfo(Map<String, Object> paraMap);
+	
 	/** 
 	* @Method Name  : getAllResourceList 
 	* @작성일   : Dec 30, 2023 
@@ -179,8 +224,124 @@ public interface ReservationService {
 	* @return 
 	*/
 	int rsvApprove(Map<String, Object> paraMap);
-
 	
+	/** 
+	* @Method Name  : rsvApprove 
+	* @작성일   : Jan 2, 2024 
+	* @작성자   : hada 
+	* @변경이력  : 
+	* @Method 설명 : 예약 반려하기
+	* @param paraMap
+	* @return 
+	*/
+	int rsvReject(Map<String, Object> paraMap);
+
+	/** 
+	* @Method Name  : categoryDel 
+	* @작성일   : Jan 2, 2024 
+	* @작성자   : hada 
+	* @변경이력  : 
+	* @Method 설명 : 카테고리 삭제하기
+	* @param paraMap
+	* @return 
+	*/
+	int categoryDel(Map<String, Object> paraMap);
+
+	/** 
+	* @Method Name  : categoryAdd 
+	* @작성일   : Jan 3, 2024 
+	* @작성자   : hada 
+	* @변경이력  : 
+	* @Method 설명 : 자원 카테고리 추가하기
+	* @param paraMap
+	* @return 
+	*/
+	int categoryAdd(Map<String, Object> paraMap);
+
+	/** 
+	* @Method Name  : categoryEdit 
+	* @작성일   : Jan 3, 2024 
+	* @작성자   : hada 
+	* @변경이력  : 
+	* @Method 설명 : 자원 카테고리 수정하기
+	* @param paraMap
+	* @return 
+	*/
+	int categoryEdit(Map<String, Object> paraMap);
+
+	/** 
+	* @Method Name  : resourceAdd 
+	* @작성일   : Jan 4, 2024 
+	* @작성자   : hada 
+	* @변경이력  : 
+	* @Method 설명 : 자원 추가하기	
+	* @param paraMap
+	* @return 
+	*/
+	int resourceAdd(Map<String, Object> paraMap);
+
+	/** 
+	* @Method Name  : resourceEdit 
+	* @작성일   : Jan 4, 2024 
+	* @작성자   : hada 
+	* @변경이력  : 
+	* @Method 설명 : 자원 수정하기	
+	* @param paraMap
+	* @return 
+	*/
+	int resourceEdit(Map<String, Object> paraMap);
+
+	/** 
+	* @Method Name  : getFirstCategoryId 
+	* @작성일   : Jan 5, 2024 
+	* @작성자   : hada 
+	* @변경이력  : 
+	* @Method 설명 : 존재하는 첫번째 카테고리id 가져오기
+	* @return 
+	*/
+	String getFirstCategoryId();
+
+	/** 
+	* @Method Name  : resourceDel 
+	* @작성일   : Jan 5, 2024 
+	* @작성자   : hada 
+	* @변경이력  : 
+	* @Method 설명 : 자원 삭제하기
+	* @param paraMap
+	* @return 
+	*/
+	int resourceDel(Map<String, Object> paraMap);
+
+	/** 
+	* @Method Name  : getRsvAdminList 
+	* @작성일   : Jan 5, 2024 
+	* @작성자   : hada 
+	* @변경이력  : 
+	* @Method 설명 : 예약관리자 목록 가져오기
+	* @return 
+	*/
+	List<Map<String, String>> getRsvAdminList();
+
+	/** 
+	* @Method Name  : getRsvAdminTotalCount 
+	* @작성일   : Jan 5, 2024 
+	* @작성자   : hada 
+	* @변경이력  : 
+	* @Method 설명 : 
+	* @return 
+	*/
+	int getRsvAdminTotalCount();
+
+	/** 
+	* @Method Name  : getReservationMarkList 
+	* @작성일   : Jan 5, 2024 
+	* @작성자   : hada 
+	* @변경이력  : 
+	* @Method 설명 : 예약된 시간을 표시하기 위한 자원 목록 가져오기
+	* @param paraMap
+	* @return 
+	*/
+	List<Map<String, String>> getReservationMarkList(Map<String, Object> paraMap);
 
 	
 

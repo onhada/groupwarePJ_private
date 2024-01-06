@@ -53,7 +53,7 @@
 									<button type="button" name="button" class="weakblue booking_return_layer_btn" onclick="returnRsourceModalOpen()">반납</button>
 									<span class="grey_bar">|</span>
 									</c:if>
-									<button type="button" name="button" class="weakblue del_booking_layer_btn" onclick="delRsvModalOpen()">삭제</button>
+									<button type="button" name="button" class="weakblue del_booking_layer_btn" onclick="delRsvModalOpen(${reservedResource.rsvResourceId})">삭제</button>
 								</td>
 							</tr>
 						</c:forEach>

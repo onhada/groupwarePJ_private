@@ -92,13 +92,15 @@ $(document).ready(function() {
 			dayNamesMin : [ "일", "월", "화", "수", "목", "금", "토" ],
 			weekHeader : "주",
 			dateFormat : "yy-mm-dd", 
-	           changeYear: true,        //콤보박스에서 년 선택 가능
-	           changeMonth: true,       //콤보박스에서 월 선택 가능  
+	        changeYear: true,        //콤보박스에서 년 선택 가능
+	        changeMonth: true,       //콤보박스에서 월 선택 가능  
 			firstDay : 0,
 			isRTL : false,
-	           showOtherMonths: true,   //빈 공간에 현재월의 앞뒤월의 날짜를 표시
+	        showOtherMonths: true,   //빈 공간에 현재월의 앞뒤월의 날짜를 표시
 			showMonthAfterYear : true,	//년도 먼저 나오고, 뒤에 월 표시
-			yearSuffix : "년"
+			yearSuffix : "년",
+			minDate: "0D", //최소 선택일자(-1D:하루전, -1M:한달전, -1Y:일년전)
+			maxDate: "+3M" //최대 선택일자(+1D:하루후, +1M:한달후, +1Y:일년후)    
 		};
 		datepicker.setDefaults(datepicker.regional.ko);
 
@@ -177,26 +179,53 @@ $(document).ready(function() {
 		 }
 	 });// 생년월일에 마우스로 달력에 있는 날짜를 선택한 경우 이벤트 처리 한것 
 	 */
-	 $("button.del_reservation_btn").attr("id", $(".rsv_detail_view").attr("rsvResourceId")); // 삭제하기 위한 자원예약id 넣기
-	 $("button.reservation_return_btn").attr("id", $(".rsv_detail_view").attr("rsvResourceId")); // 반납하기 위한 자원예약id 넣기
-	 $("button.reservation_approve_btn").attr("id", $(".rsv_detail_view_btn").attr("id")); // 승인하기 위한 자원예약id 넣기
-		
+	 
+	 
+	 // 수정필) 이거누른 게 잘 작동하는 지 확인해봐야할듯 
+	 // ---------- 컨트롤러로 자원예약id 값 넘겨주기 ---------- //
+	/*  $("button.del_reservation_btn").attr("id", $(".rsv_detail_view").attr("rsvResourceId")); // 삭제하기 위한 자원예약id 넣기 (from 나의예 : 상세보기 ) */
+	 $("button.del_reservation_btn").attr("id", $(".rsv_detail_view_btn").attr("id")); // 삭제하기 위한 자원예약id 넣기 (from 승인관리)
+	 $("button.reservation_return_btn").attr("id", $(".rsv_detail_view").attr("rsvResourceId")); // 반납하기 위한 자원예약id 넣기 (from 나의예약)
+	 $("button.reservation_return_btn").attr("id", $(".rsv_detail_view_btn").attr("id")); // 반납하기 위한 자원예약id 넣기 (from 반납관리)
+	 $("button.reservation_approve_btn").attr("id", $(".rsv_detail_view_btn").attr("id")); // 승인하기 위한 자원예약id 넣기 (from 승인관리)
+	 $("button.reservation_reject_btn").attr("id", $(".rsv_detail_view_btn").attr("id")); // 반려하기 위한 자원예약id 넣기 (from 승인관리)
+
 	
+	 
+	 
 })// end of $(document).ready(function(){})-------------------------
 
+//Function Declaration
+<%-- 데이터피커 날짜 이동 --%> // 수정필.. 이거 버릴 거면 지워 ..
+function moveDate(when){
+	
+	if(when == 'prev'){
+		$("input#viewReservationDate").datepicker('setDate', '-1D');
+	}
+	else if(when == 'today'){
+		$("input#viewReservationDate").datepicker('setDate', 'today');
+	}
+	else if (when == 'next'){
+		$("input#viewReservationDate").datepicker('setDate', '+1D');
+	}	
+		
+	/* 	
+	date2 = $('.check1').datepicker('getDate', '+1d'); 
+	  date2.setDate(date2.getDate()+1); 
+	  $('.check1').datepicker('setDate', date2);
+	  */
+	console.log($("input#viewReservationDate").val());
+}
 
 
-// Function Declaration
+
+
 <%-- 모달 닫기 --%>
 function layerClose(id) {
 	$('div#' + id + '_layer').addClass("hide");
 	window.location.reload();
 }
-<%-- 모달 열기 --%>
-/* function layerOpen(id, rsvid) {
-	$('div#' + id + '_layer').removeClass("hide");
-	// window.location.reload();
-} */
+
 
 <%-- 예약하기 모달 열기 --%>
 function resourceReserve() {
@@ -265,7 +294,6 @@ function addReservation(){
 	}
 	
 	
-	
 	var rsvStartDayTime = $("input#reservationDate").val() + " " + $("select#rsvStartDayTime").val();
 	var rsvEndDayTime = $("input#reservationDate").val() + " " + $("select#rsvEndDayTime").val();
 	
@@ -300,6 +328,8 @@ function addReservation(){
 
 <%-- 예약확인 모달 열기 --%>
 function reservation_info_detail_open(rsvResourceId) {
+	$("button.del_reservation_btn").attr("id", rsvResourceId); // 삭제하기 위한 자원예약id 넣기 (from 나의예약)
+	
 	$('div#reservation_info_detail_layer').removeClass("hide");
 	$.ajax({
     	url : "<%=ctxPath%>/reservation/getReservationInfoDetail.gw",
@@ -394,13 +424,15 @@ function reservation_info_detail_open(rsvResourceId) {
 
 
 <%-- 예약 삭제 모달 열기 --%>
-function delRsvModalOpen(){
+function delRsvModalOpen(rsvId){		console.log(rsvId);
 	$("div#reservation_del_layer").removeClass("hide");
+	$("button.del_reservation_btn").attr("id", rsvId); // 삭제하기 위한 자원예약id 넣기 (from 나의예약)
 }
 
 
 <%-- 예약 삭제하기 --%>
 function delRservation(rsvId){
+	console.log(rsvId);
 	$.ajax({
     	url : "<%=ctxPath%>/reservation/delReservation.gw",
 		type : "get",
@@ -477,7 +509,6 @@ function rsvApprove(rsvId){
 			else{ // 자원 반납 실패한 경우
 				alert("승인에 실패했습니다.");
 			}
-			
 		},
 		error : function(request, status, error) {
 			alert("code: " + request.status + "\n" + "message: " + request.responseText + "\n" + "error: " + error);
@@ -491,13 +522,21 @@ function rsvRejectModalOpen(){
 	$("div#reservation_reject_layer").removeClass("hide");	
 }
 
+
 <%-- 예약 반려하기 --%>
-function rsvReject(rsvId){
+function rsvReject(rsvId){ 
+	
+	const rejectReason = $("input#rejectReason").val();
+	if(rejectReason.trim() == ""){
+		alert("반려사유를 입력하세요");
+		return;
+	}
+	
 	$.ajax({
     	url : "<%=ctxPath%>/reservation/rsvReject.gw",
 		type : "get",
 		data : {"rsvResourceId":rsvId,
-				"rejectReason":$("input#rejectReason").val()},	
+				"rejectReason":rejectReason},	
 		dataType : "json",
 		async : false,
 		success : function(json) {
@@ -508,13 +547,82 @@ function rsvReject(rsvId){
 			else{ // 자원 반납 실패한 경우
 				alert("반려에 실패했습니다.");
 			}
-			
 		},
 		error : function(request, status, error) {
 			alert("code: " + request.status + "\n" + "message: " + request.responseText + "\n" + "error: " + error);
 		}
 	});	
 }
+
+
+<%-- 카테고리 삭제 모달 열기 --%>
+function categoryDelModalOpen(id){
+	$("button.categoryDel_btn").attr("id", id); // 카테고리삭제하기 위한 자원예약id 넣기 (from 카테고리관리)
+	$("div#category_del_layer").removeClass("hide");	
+}
+
+
+<%-- 카테고리 삭제하기 --%>
+function categoryDel(categoryId){
+	$.ajax({
+    	url : "<%=ctxPath%>/reservation/categoryDel.gw",
+		type : "get",
+		data : {"resourceCategoryId":categoryId},	
+		dataType : "json",
+		async : false,
+		success : function(json) {
+			if(json.result == 1){ // 성공한 경우 
+				alert("삭제되었습니다.");
+				window.location.reload();
+			}
+			else{ // 실패한 경우
+				alert("삭제에 실패했습니다.");
+			}
+		},
+		error : function(request, status, error) {
+			alert("code: " + request.status + "\n" + "message: " + request.responseText + "\n" + "error: " + error);
+		}
+	});	
+}
+
+
+<%-- 자원 삭제 모달 열기 --%>
+function resourceDelModalOpen(id){
+	$("button.resourceDel_btn").attr("id", id); // 카테고리삭제하기 위한 자원예약id 넣기 (from 카테고리관리)
+	$("div#resource_del_layer").removeClass("hide");	
+}
+
+
+<%-- 자원 삭제하기 --%>
+function resourceDel(resourceId){
+	$.ajax({
+    	url : "<%=ctxPath%>/reservation/resourceDel.gw",
+		type : "get",
+		data : {"resourceId":resourceId},	
+		dataType : "json",
+		async : false,
+		success : function(json) {
+			if(json.result == 1){ // 성공한 경우 
+				alert("삭제되었습니다.");
+				window.location.reload();
+			}
+			else{ // 실패한 경우
+				alert("삭제에 실패했습니다.");
+			}
+		},
+		error : function(request, status, error) {
+			alert("code: " + request.status + "\n" + "message: " + request.responseText + "\n" + "error: " + error);
+		}
+	});	
+}
+
+
+<%-- 관리자추가 모달 열기 --%>
+function rsvAdminAddModalOpen(){
+	$("div#rsvAdmin_add_layer").removeClass("hide");	
+	$("div#rsvAdmin_add_layer").addClass("layer_box");	
+}
+
 	
 /* 수정필) 이전날, 다음날, 오늘 누르면 바로 이동한느 것?  
 function moveDate(type){
@@ -622,14 +730,16 @@ function moveDate(type){
 		<!-- /////////////////////// 모달 시작 /////////////////////// -->
 
 
-				<%-- ========== 카테고리설명 모달 시작 ========== --%>
+		<%-- ========== 카테고리설명 모달 시작 ========== --%>
 		<div id="category_detail_layer" class="booking_layer_div hide">
 			<div class="layer_box" style="z-index: 1005;">
 				<div class="layer_box rs-detail-layer popup16" style="margin-left: -411px; margin-top: -300.5px; display: block; z-index: 1005;">
 					<div class="title_layer text_variables">카테고리 설명</div>
 					<div class="scroll ta_c">
 						<div class="rs-detail-img">
-							<img src="<%=ctxPath%>/resources/image/reservation/${requestScope.resourceCategoryInfo_map.imageFile}" alt="">
+							<%-- <img src="<%=ctxPath%>/resources/image/reservation/${requestScope.resourceCategoryInfo_map.imageFile}" alt=""> --%>
+							<img src="<%= ctxPath%>${requestScope.viewPath}${requestScope.resourceCategoryInfo_map.imageFile}" alt="">
+						
 						</div>
 						<div class="rs-name">${requestScope.resourceCategoryInfo_map.resourceCategoryName}</div>
 						<div class="rs-detail-text">${requestScope.resourceCategoryInfo_map.description}</div>
@@ -826,7 +936,7 @@ function moveDate(type){
 
 					<div class="layer_button">
 						<button type="button" class="btn_variables booking_layer_close" onclick="layerClose('reservation_info_detail');">확인</button>
-						<c:if test='${reservedResource.returnStatus != "0"}'>
+						<c:if test='${reservedResource.returnStatus != "0" and requestScope.type == ""}'>
 						<button type="button" class="btn_variables booking_return_layer_btn" id="returnStatus" onclick="returnRsourceModalOpen()">반납</button>
 						</c:if>
 						<button type="button" class="warning" onclick="delRsvModalOpen()">삭제</button>
@@ -925,7 +1035,7 @@ function moveDate(type){
 						</p>
 					</div>
 					<div class="layer_button">
-						<button type="button" class="btn_variables" onclick="rsvReject(this.id)">확인</button>
+						<button type="button" class="btn_variables reservation_reject_btn" onclick="rsvReject(this.id)">확인</button>
 					</div>
 					<a href="javascript:void(0)" class="icon btn_closelayer booking_layer_close" title="레이어 닫기" onclick="layerClose('reservation_reject');">
 						<span class="blind">레이어 닫기</span>
@@ -937,256 +1047,246 @@ function moveDate(type){
 		<%-- ========== 예약반려 모달 끝 ========== --%>
 
 
+		<%-- ========== 카테고리 삭제 모달 시작 ========== --%>
+		<div id="category_del_layer" class="booking_layer_div hide">
+			<div class="layer_box" style="z-index: 1005;">
+				<div class="layer_box middle popup5" style="margin-left: -175px; margin-top: -96.5px; display: block; z-index: 1005;">
+					<div class="title_layer text_variables">카테고리 삭제</div>
+					<div>카테고리 삭제 시, 자원에 대한 모든 예약 기록이 삭제되며 복구할 수 없습니다.</div>
 
-		<%--
-<!-- # 카테고리 삭제 모달 시작 -->
-<div id="category_del_layer" class="booking_layer_div"><div class="layer_box" style="z-index: 1005;"><div class="layer_box middle popup5" style="margin-left: -175px; margin-top: -96.5px; display: block; z-index: 1005;">
-	<div class="title_layer text_variables">카테고리 삭제</div>
-	<div>
-		카테고리 삭제 시, 자원에 대한 모든 예약 기록이 삭제되며 복구할 수 없습니다.	</div>
-
-	<div class="layer_button">
-		<button type="button" class="warning" onclick="bookingCategory.delCategory(1982);">위 내용을 확인했으며 삭제합니다.</button>
-	</div>
-	<a href="javascript:void(0)" class="icon btn_closelayer booking_layer_close" title="레이어 닫기"><span class="blind">닫기</span></a>
-</div></div><div class="layer_back" style="position: fixed; width: 100%; height: 100%; z-index: 1000; background-color: rgb(0, 0, 0); opacity: 0.3; top: 0px; left: 0px; margin: 0px; padding: 0px;"></div></div>
-<!-- # 카테고리 삭제 모달 끝 -->
---%>
-
-
-		<%-- 
-<!-- # 관리자추가 모달 시작 -->
-<div class="layer_box large address hide" id="div_booking_view"
-	style="margin-left: -411px; margin-top: -310px; display: block;">
-	<div class="title_layer text_variables">관리자 추가</div>
-	<div class="search-address">
-		<div class="hidden">
-			<input type="hidden" id="booking_order_key" value="N">
-			<dl class="dvdLayer" id="searchP" style="display: block;">
-				<dt style="width: 45%">
-					<input type="radio" value="name" name="searchField"
-						id="rdo_sch_name" onclick="$j('#keyword').focus();"
-						checked="checked"><label for="rdo_sch_name">이름 ,
-						아이디</label>&nbsp;&nbsp; <input type="radio" value="group"
-						name="searchField" id="rdo_sch_group"
-						onclick="$j('#keyword').focus();"><label
-						for="rdo_sch_group">그룹</label>&nbsp;&nbsp;
-
-				</dt>
-				<dd style="width: 55%">
-					<input type="text" style="height: 21px; width: 140px;"
-						class="text-box" title="검색어 입력" id="keyword"
-						onkeypress="if(event.keyCode == 13) addressbook.click_searchBtn();">
-					<a href="javascript:void(0);" class="btn-search"
-						onclick="addressbook.click_searchBtn();">검색</a>
-				</dd>
-			</dl>
+					<div class="layer_button">
+						<button type="button" class="warning categoryDel_btn" onclick="categoryDel(this.id)">위 내용을 확인했으며 삭제합니다.</button>
+					</div>
+					<a href="javascript:void(0)" class="icon btn_closelayer booking_layer_close" title="레이어 닫기" onclick="layerClose('category_del');">
+						<span class="blind">닫기</span>
+					</a>
+				</div>
+			</div>
+			<div class="layer_back" style="position: fixed; width: 100%; height: 100%; z-index: 1000; background-color: rgb(0, 0, 0); opacity: 0.3; top: 0px; left: 0px; margin: 0px; padding: 0px;"></div>
 		</div>
-		<div class="after">
-			<p class="pdb_10">이미 추가된 관리자는 추가해도 추가되지 않습니다.</p>
-			<!-- 관리자 추가일 경우 노출 -->
-			<p class="pdb_10 fl" id="searchMessage" style="display: none;">
-				<span id="searchKeyword"></span> 검색결과 : <span id="searchCount"></span>
-				<a href="javascript:void(0);" class="search_bt weakblue"
-					onclick="addressbook.setTab(addressbook.currentTab);"><span
-					class="sp_menu searchCancel"></span>검색 취소</a>
-			</p>
-		</div>
-	</div>
+		<%-- ========== 카테고리 삭제 모달 끝 ========== --%>
+		
+		
+		<%-- ========== 자원 삭제 모달 시작 ========== --%>
+		<div id="resource_del_layer" class="booking_layer_div hide">
+			<div class="layer_box" style="z-index: 1005;">
+				<div class="layer_box middle popup5" style="margin-left: -175px; margin-top: -96.5px; display: block; z-index: 1005;">
+					<div class="title_layer text_variables">자원 삭제</div>
+					<div>자원 삭제 시, 자원에 대한 모든 예약 기록이 삭제되며 복구할 수 없습니다.</div>
 
-	<div class="address-choice-form after">
-		<!-- 1. type2를 떼면 관리자 추가
+					<div class="layer_button">
+						<button type="button" class="warning resourceDel_btn" onclick="resourceDel(this.id)">위 내용을 확인했으며 삭제합니다.</button>
+					</div>
+					<a href="javascript:void(0)" class="icon btn_closelayer booking_layer_close" title="레이어 닫기" onclick="layerClose('category_del');">
+						<span class="blind">닫기</span>
+					</a>
+				</div>
+			</div>
+			<div class="layer_back" style="position: fixed; width: 100%; height: 100%; z-index: 1000; background-color: rgb(0, 0, 0); opacity: 0.3; top: 0px; left: 0px; margin: 0px; padding: 0px;"></div>
+		</div>
+		<%-- ========== 자원 삭제 모달 끝 ========== --%>
+
+
+		<%-- ========== 관리자추가 모달 시작 ========== --%>
+		<!-- <div class="layer_box large address hide" id -->
+		<div id="rsvAdmin_add_layer" class="large address hide" style="margin-left: -411px; margin-top: -310px; display: block; width: 820px;">
+			<div class="title_layer text_variables">관리자 추가</div>
+			<div class="search-address">
+				<div class="hidden">
+					<input type="hidden" id="booking_order_key" value="N">
+					<dl class="dvdLayer" id="searchP" style="display: block;">
+						<dt style="width: 45%">
+							<input type="radio" value="name" name="searchField" id="rdo_sch_name" onclick="$j('#keyword').focus();" checked="checked">
+							<label for="rdo_sch_name">이름 , 아이디</label>
+							&nbsp;&nbsp;
+							<input type="radio" value="group" name="searchField" id="rdo_sch_group" onclick="$j('#keyword').focus();">
+							<label for="rdo_sch_group">그룹</label>
+							&nbsp;&nbsp;
+
+						</dt>
+						<dd style="width: 55%">
+							<input type="text" style="height: 21px; width: 140px;" class="text-box" title="검색어 입력" id="keyword" onkeypress="if(event.keyCode == 13) addressbook.click_searchBtn();">
+							<a href="javascript:void(0);" class="btn-search" onclick="addressbook.click_searchBtn();">검색</a>
+						</dd>
+					</dl>
+				</div>
+				<div class="after">
+					<p class="pdb_10">이미 추가된 관리자는 추가해도 추가되지 않습니다.</p>
+					<!-- 관리자 추가일 경우 노출 -->
+					<p class="pdb_10 fl" id="searchMessage" style="display: none;">
+						<span id="searchKeyword"></span>
+						검색결과 :
+						<span id="searchCount"></span>
+						<a href="javascript:void(0);" class="search_bt weakblue" onclick="addressbook.setTab(addressbook.currentTab);">
+							<span class="sp_menu searchCancel"></span>
+							검색 취소
+						</a>
+					</p>
+				</div>
+			</div>
+
+			<div class="address-choice-form after">
+				<!-- 1. type2를 떼면 관리자 추가
 	2. type2를 붙이면 결재선 설정, 결재선 추가, 부서 결재선 등록, 
 	3. sign을 붙이면 결재선 설정 (결재, 합의만 있는)
  -->
-		<div class="fl">
-			<div class="category_list" style="overflow-y: scroll;">
-				<select id="leftList" size="19" frameborder="0"
-					style="display: none;" onclick="addressbook.click_leftList(this)">
-				</select>
-				<div id="treeDiv" style="" class="treeDiv OrgTree">
-					<ul>
-						<li id="addressTreeNode_57182" class="last"><div
-								class="container">
-								<img onclick="addressbook.ToggleTree(this);"
-									src="https://booking.office.hiworks.com/assets/images/common/tree_images/tree_m.gif"
-									class="plus"><strong
-									onclick="addressbook.selectNode(this);" class="selectedNode">하이웍스산업
-									<span
-									style="font-weight: normal; color: silver; font-size: 8pt">(11)</span>
-								</strong>
-							</div>
-							<ul style="">
-								<li id="addressTreeNode_57184"><div class="container">
-										<img onclick="addressbook.ToggleTree(this);"
-											src="https://booking.office.hiworks.com/assets/images/common/tree_images/tree_p.gif"
-											class="plus"><strong
-											onclick="addressbook.selectNode(this);">관리부 <span
-											style="font-weight: normal; color: silver; font-size: 8pt">(4)</span></strong>
+				<div class="fl">
+					<div class="category_list" style="overflow-y: scroll;">
+						<select id="leftList" size="19" frameborder="0" style="display: none;" onclick="addressbook.click_leftList(this)">
+						</select>
+						<div id="treeDiv" style="" class="treeDiv OrgTree">
+							<ul>
+								<li id="addressTreeNode_57182" class="last">
+									<div class="container">
+										<img onclick="addressbook.ToggleTree(this);" src="https://booking.office.hiworks.com/assets/images/common/tree_images/tree_m.gif" class="plus"><strong onclick="addressbook.selectNode(this);" class="selectedNode">하이웍스산업 <span style="font-weight: normal; color: silver; font-size: 8pt">(11)</span>
+										</strong>
 									</div>
-									<ul style="display: none;">
-										<li id="addressTreeNode_57187"><div class="container">
-												<strong onclick="addressbook.selectNode(this);">인사팀
-													<span
-													style="font-weight: normal; color: silver; font-size: 8pt">(1)</span>
-												</strong>
-											</div></li>
-										<li id="addressTreeNode_57188"><div class="container">
-												<strong onclick="addressbook.selectNode(this);">구매총무팀
-													<span
-													style="font-weight: normal; color: silver; font-size: 8pt">(1)</span>
-												</strong>
-											</div></li>
-										<li id="addressTreeNode_57189" class="last"><div
-												class="container">
-												<strong onclick="addressbook.selectNode(this);">재무회계팀
-													<span
-													style="font-weight: normal; color: silver; font-size: 8pt">(2)</span>
-												</strong>
-											</div></li>
-									</ul></li>
-								<li id="addressTreeNode_57185"><div class="container">
-										<img onclick="addressbook.ToggleTree(this);"
-											src="https://booking.office.hiworks.com/assets/images/common/tree_images/tree_p.gif"
-											class="plus"><strong
-											onclick="addressbook.selectNode(this);">생산부 <span
-											style="font-weight: normal; color: silver; font-size: 8pt">(3)</span></strong>
-									</div>
-									<ul style="display: none;">
-										<li id="addressTreeNode_57190"><div class="container">
-												<strong onclick="addressbook.selectNode(this);">생산1팀
-													<span
-													style="font-weight: normal; color: silver; font-size: 8pt">(1)</span>
-												</strong>
-											</div></li>
-										<li id="addressTreeNode_57191"><div class="container">
-												<strong onclick="addressbook.selectNode(this);">생산2팀
-													<span
-													style="font-weight: normal; color: silver; font-size: 8pt">(1)</span>
-												</strong>
-											</div></li>
-										<li id="addressTreeNode_57192" class="last"><div
-												class="container">
-												<strong onclick="addressbook.selectNode(this);">품질관리팀
-													<span
-													style="font-weight: normal; color: silver; font-size: 8pt">(1)</span>
-												</strong>
-											</div></li>
-									</ul></li>
-								<li id="addressTreeNode_57186" class="last"><div
-										class="container">
-										<img onclick="addressbook.ToggleTree(this);"
-											src="https://booking.office.hiworks.com/assets/images/common/tree_images/tree_p.gif"
-											class="plus"><strong
-											onclick="addressbook.selectNode(this);">영업부 <span
-											style="font-weight: normal; color: silver; font-size: 8pt">(3)</span></strong>
-									</div>
-									<ul style="display: none;">
-										<li id="addressTreeNode_57193"><div class="container">
-												<strong onclick="addressbook.selectNode(this);">영업1팀
-													<span
-													style="font-weight: normal; color: silver; font-size: 8pt">(1)</span>
-												</strong>
-											</div></li>
-										<li id="addressTreeNode_57194"><div class="container">
-												<strong onclick="addressbook.selectNode(this);">영업2팀
-													<span
-													style="font-weight: normal; color: silver; font-size: 8pt">(1)</span>
-												</strong>
-											</div></li>
-										<li id="addressTreeNode_57195" class="last"><div
-												class="container">
-												<strong onclick="addressbook.selectNode(this);">고객지원팀
-													<span
-													style="font-weight: normal; color: silver; font-size: 8pt">(1)</span>
-												</strong>
-											</div></li>
-									</ul></li>
-							</ul></li>
-					</ul>
+									<ul style="">
+										<li id="addressTreeNode_57184">
+											<div class="container">
+												<img onclick="addressbook.ToggleTree(this);" src="https://booking.office.hiworks.com/assets/images/common/tree_images/tree_p.gif" class="plus"><strong onclick="addressbook.selectNode(this);">관리부 <span style="font-weight: normal; color: silver; font-size: 8pt">(4)</span></strong>
+											</div>
+											<ul style="display: none;">
+												<li id="addressTreeNode_57187">
+													<div class="container">
+														<strong onclick="addressbook.selectNode(this);">인사팀 <span style="font-weight: normal; color: silver; font-size: 8pt">(1)</span>
+														</strong>
+													</div>
+												</li>
+												<li id="addressTreeNode_57188">
+													<div class="container">
+														<strong onclick="addressbook.selectNode(this);">구매총무팀 <span style="font-weight: normal; color: silver; font-size: 8pt">(1)</span>
+														</strong>
+													</div>
+												</li>
+												<li id="addressTreeNode_57189" class="last">
+													<div class="container">
+														<strong onclick="addressbook.selectNode(this);">재무회계팀 <span style="font-weight: normal; color: silver; font-size: 8pt">(2)</span>
+														</strong>
+													</div>
+												</li>
+											</ul>
+										</li>
+										<li id="addressTreeNode_57185">
+											<div class="container">
+												<img onclick="addressbook.ToggleTree(this);" src="https://booking.office.hiworks.com/assets/images/common/tree_images/tree_p.gif" class="plus"><strong onclick="addressbook.selectNode(this);">생산부 <span style="font-weight: normal; color: silver; font-size: 8pt">(3)</span></strong>
+											</div>
+											<ul style="display: none;">
+												<li id="addressTreeNode_57190">
+													<div class="container">
+														<strong onclick="addressbook.selectNode(this);">생산1팀 <span style="font-weight: normal; color: silver; font-size: 8pt">(1)</span>
+														</strong>
+													</div>
+												</li>
+												<li id="addressTreeNode_57191">
+													<div class="container">
+														<strong onclick="addressbook.selectNode(this);">생산2팀 <span style="font-weight: normal; color: silver; font-size: 8pt">(1)</span>
+														</strong>
+													</div>
+												</li>
+												<li id="addressTreeNode_57192" class="last">
+													<div class="container">
+														<strong onclick="addressbook.selectNode(this);">품질관리팀 <span style="font-weight: normal; color: silver; font-size: 8pt">(1)</span>
+														</strong>
+													</div>
+												</li>
+											</ul>
+										</li>
+										<li id="addressTreeNode_57186" class="last">
+											<div class="container">
+												<img onclick="addressbook.ToggleTree(this);" src="https://booking.office.hiworks.com/assets/images/common/tree_images/tree_p.gif" class="plus"><strong onclick="addressbook.selectNode(this);">영업부 <span style="font-weight: normal; color: silver; font-size: 8pt">(3)</span></strong>
+											</div>
+											<ul style="display: none;">
+												<li id="addressTreeNode_57193">
+													<div class="container">
+														<strong onclick="addressbook.selectNode(this);">영업1팀 <span style="font-weight: normal; color: silver; font-size: 8pt">(1)</span>
+														</strong>
+													</div>
+												</li>
+												<li id="addressTreeNode_57194">
+													<div class="container">
+														<strong onclick="addressbook.selectNode(this);">영업2팀 <span style="font-weight: normal; color: silver; font-size: 8pt">(1)</span>
+														</strong>
+													</div>
+												</li>
+												<li id="addressTreeNode_57195" class="last">
+													<div class="container">
+														<strong onclick="addressbook.selectNode(this);">고객지원팀 <span style="font-weight: normal; color: silver; font-size: 8pt">(1)</span>
+														</strong>
+													</div>
+												</li>
+											</ul>
+										</li>
+									</ul>
+								</li>
+							</ul>
+						</div>
+						<div id="leftProgressDiv" style="display: none;" class="progressDiv">
+							<img src="/assets/images/common/icon/progress_big.gif">
+						</div>
+					</div>
+					<div class="list">
+						<select multiple="" id="rightList" style="">
+							<option value="86920" title="과장 강과장 <영업2팀>">과장 강과장 &lt;영업2팀&gt;</option>
+							<option value="86917" title="이사 김이사 <생산1팀>">이사 김이사 &lt;생산1팀&gt;</option>
+							<option value="86914" title="대표이사 대표이사 <하이웍스산업>">대표이사 대표이사 &lt;하이웍스산업&gt;</option>
+							<option value="86916" title="상무 박상무 <구매총무팀>">상무 박상무 &lt;구매총무팀&gt;</option>
+							<option value="86922" title="주임 안주임 <품질관리팀>">주임 안주임 &lt;품질관리팀&gt;</option>
+							<option value="86921" title="대리 양대리 <재무회계팀>">대리 양대리 &lt;재무회계팀&gt;</option>
+							<option value="86918" title="부장 오부장 <생산2팀>">부장 오부장 &lt;생산2팀&gt;</option>
+							<option value="86923" title="사원 이사원 <고객지원팀>">사원 이사원 &lt;고객지원팀&gt;</option>
+							<option value="86919" title="차장 조차장 <영업1팀>">차장 조차장 &lt;영업1팀&gt;</option>
+							<option value="86924" title="계약직 주알바 <재무회계팀>">계약직 주알바 &lt;재무회계팀&gt;</option>
+							<option value="86915" title="사장 최사장 <인사팀>">사장 최사장 &lt;인사팀&gt;</option>
+						</select>
+						<div class="add-btn">
+							<a href="javascript:void(0);" class="blind icon btn-to" onclick="bookingAdmin.addAdminClick();" id="approval_add">추가</a>
+						</div>
+						<div class="choice-area approve">
+							<a class="text_variables" href="javascript:void(0);" onclick="addressbook.click_rightSelect('select');">전체</a>
+							<a class="text_variables" href="javascript:void(0);" onclick="addressbook.click_rightSelect('deselect');">선택안함</a>
+							<a class="text_variables" href="javascript:void(0);" onclick="addressbook.click_orderBtn('name', 'asc');">이름순</a>
+							<!--a class="text_variables" href="javascript:void(0);" onclick="addressbook.click_orderBtn('name', 'desc');">설정순</a-->
+						</div>
+					</div>
+					<div class="after page_select_wrap">
+						<div class="page_select" id="pagingP"></div>
+					</div>
+					<div id="rightProgressDiv" style="display: none;" class="progressDiv">
+						<img src="/assets/images/common/icon/progress_big.gif">
+					</div>
 				</div>
-				<div id="leftProgressDiv" style="display: none;"
-					class="progressDiv">
-					<img src="/assets/images/common/icon/progress_big.gif">
-				</div>
-			</div>
-			<div class="list">
-				<select multiple="" id="rightList" style="">
-					<option value="86920" title="과장 강과장 <영업2팀>">과장 강과장
-						&lt;영업2팀&gt;</option>
-					<option value="86917" title="이사 김이사 <생산1팀>">이사 김이사
-						&lt;생산1팀&gt;</option>
-					<option value="86914" title="대표이사 대표이사 <하이웍스산업>">대표이사
-						대표이사 &lt;하이웍스산업&gt;</option>
-					<option value="86916" title="상무 박상무 <구매총무팀>">상무 박상무
-						&lt;구매총무팀&gt;</option>
-					<option value="86922" title="주임 안주임 <품질관리팀>">주임 안주임
-						&lt;품질관리팀&gt;</option>
-					<option value="86921" title="대리 양대리 <재무회계팀>">대리 양대리
-						&lt;재무회계팀&gt;</option>
-					<option value="86918" title="부장 오부장 <생산2팀>">부장 오부장
-						&lt;생산2팀&gt;</option>
-					<option value="86923" title="사원 이사원 <고객지원팀>">사원 이사원
-						&lt;고객지원팀&gt;</option>
-					<option value="86919" title="차장 조차장 <영업1팀>">차장 조차장
-						&lt;영업1팀&gt;</option>
-					<option value="86924" title="계약직 주알바 <재무회계팀>">계약직 주알바
-						&lt;재무회계팀&gt;</option>
-					<option value="86915" title="사장 최사장 <인사팀>">사장 최사장
-						&lt;인사팀&gt;</option>
-				</select>
-				<div class="add-btn">
-					<a href="javascript:void(0);" class="blind icon btn-to"
-						onclick="bookingAdmin.addAdminClick();" id="approval_add">추가</a>
-				</div>
-				<div class="choice-area approve">
-					<a class="text_variables" href="javascript:void(0);"
-						onclick="addressbook.click_rightSelect('select');">전체</a> <a
-						class="text_variables" href="javascript:void(0);"
-						onclick="addressbook.click_rightSelect('deselect');">선택안함</a> <a
-						class="text_variables" href="javascript:void(0);"
-						onclick="addressbook.click_orderBtn('name', 'asc');">이름순</a>
-					<!--a class="text_variables" href="javascript:void(0);" onclick="addressbook.click_orderBtn('name', 'desc');">설정순</a-->
-				</div>
-			</div>
-			<div class="after page_select_wrap">
-				<div class="page_select" id="pagingP"></div>
-			</div>
-			<div id="rightProgressDiv" style="display: none;"
-				class="progressDiv">
-				<img src="/assets/images/common/icon/progress_big.gif">
-			</div>
-		</div>
 
-		<div class="to-item approve">
-			<h5 class="fl">
-				<span>관리자</span> <span id="sp_eaApproval">0</span>
-			</h5>
-			<div class="fr updown-wrap first" id="approval_swap"></div>
-			<div class="to clear" style="height: 294px;">
-				<select multiple="" id="select_admin_user_list" ondblclick=""
-					style="height: 296px"><option value="86914" disabled="">대표이사
-						대표이사&lt;하이웍스산업&gt;</option>
-					<option value="86915" disabled="">사장 최사장&lt;인사팀&gt;</option></select>
-				<div class="del-btn" id="approval_delete">
-					<a href="javascript:void(0);" class="blind icon btn-to"
-						onclick="bookingAdmin.delAdminClick();">삭제</a>
+				<div class="to-item approve">
+					<h5 class="fl">
+						<span>관리자</span>
+						<span id="sp_eaApproval">0</span>
+					</h5>
+					<div class="fr updown-wrap first" id="approval_swap"></div>
+					<div class="to clear" style="height: 294px;">
+						<select multiple="" id="select_admin_user_list" ondblclick="" style="height: 296px">
+							<option value="86914" disabled="">대표이사 대표이사&lt;하이웍스산업&gt;</option>
+							<option value="86915" disabled="">사장 최사장&lt;인사팀&gt;</option>
+						</select>
+						<div class="del-btn" id="approval_delete">
+							<a href="javascript:void(0);" class="blind icon btn-to" onclick="bookingAdmin.delAdminClick();">삭제</a>
+						</div>
+						<!-- disabled -->
+					</div>
 				</div>
-				<!-- disabled -->
 			</div>
+			<div class="layer_button">
+				<button type="button" class="btn_variables" onclick="addressbook.closeApply();">등록</button>
+				<button type="button" onclick="layerClose('rsvAdmin_add');">취소</button>
+			</div>
+			<a href="javascript:void(0)" class="icon btn_closelayer" title="레이어 닫기" onclick="layerClose('rsvAdmin_add');">
+				<span class="blind">레이어 닫기</span>
+			</a>
 		</div>
-	</div>
-	<div class="layer_button">
-		<button type="button" class="btn_variables"
-			onclick="addressbook.closeApply();">등록</button>
-		<button type="button" onclick="addressbook.closeAddressbook();">취소</button>
-	</div>
-	<a href="javascript:void(0)" class="icon btn_closelayer"
-		onclick="addressbook.closeAddressbook();" title="레이어 닫기"><span
-		class="blind">레이어 닫기</span></a>
-</div>
-<!-- # 관리자추가 모달 끝 -->
---%>
+		<%-- ========== 관리자추가 모달 끝 ========== --%>
+
+
+
 		<!-- /////////////////////// 모달 끝 /////////////////////// -->
 
 	</div>
@@ -1231,6 +1331,11 @@ function moveDate(type){
 			<span class="blind">레이어 닫기</span>
 		</a>
 	</div>
+
+
+
+
+
 
 
 
@@ -1427,11 +1532,6 @@ function moveDate(type){
 
 
 	<deepl-input-controller></deepl-input-controller>
-
-
-
-
-
 </body>
 </html>
 

@@ -17,7 +17,7 @@ $(document).ready(function() {
 	// 상단 탭메뉴에서 선택한 승인상태 카테고리의 목록 보여주기
 	$(".type").click(function(e){
 		var type = $(e.target).parent().attr("id");		
-		location.href="<%= ctxPath%>/reservation/approvalManageAdmin.gw?type="+type;
+		location.href="<%= ctxPath%>/reservation/returnManageAdmin.gw?type="+type;
 	});
 	
 	// 상단 탭메뉴의 카테고리 선택 표시 
@@ -25,36 +25,6 @@ $(document).ready(function() {
 	$(`li#${type}`).addClass("on");
  
 	
-	
-	<%--
-	// 수정필) 일단 예약 체크박스 html 주석해둠 나중에 해 
-	// 체크박스 선택할 경우
-	$('input[id="rsvResourceId_check"], input#chkAll').change(function(){
-
-		if( $('input:checkbox[id="rsvResourceId_check"]:checked').length > 0 || $("input[id='chkAll']").is(':checked') ){ // 체크박스 하나 이상 선택되었을 경우 
-		console.log("gsg");	
-			/* 
-			$("a#m_list_view_option").css("display", "none"); 
-	    	$("span#m_list_checked_action, div#m_list_checked_menu").css("display", "inline"); 
-	    	$("label#m_list_checked_cnt").text( $('input:checkbox[name="mailId"]:checked').length );
-	    	
-	    	if( $('input:checkbox[name="mailId"]:checked').length == $('input:checkbox[name="mailId"]').length ){
-	    		$("input[id='chkAll']").prop('checked',true);
-	    	}
-	    	else{
-	    		$("input[id='chkAll']").prop('checked',false);
-	    	}
-	    	 */
-		}
-		else{ // 메일이 하나도 선택되지 않았을 경우
-			/* 
-			$("a#m_list_view_option").css("display", "inline"); 
-	    	$("span#m_list_checked_action, div#m_list_checked_menu").css("display", "none");
-	    	 */
-		}
-		
-	}); 
-	--%>
 	
 })// end of $(document).ready(function(){})-------------------------
 
@@ -70,52 +40,50 @@ $(document).ready(function() {
 
 <div id="contents" style="left: 276px;">
 	<div class="setting_title">
-		<h3>승인 관리</h3>
+		<h3>반납 관리</h3>
 	</div>
 	<div class="content_inbox">
 		<!-- Contents -->
 		<div class="setting_field">
-		
 			<ul class="tabType1">
-				<li class="tab_menu" id="approvalWait">
-					<a href="javascript:void(0);" class="type">승인대기</a>
+				<li class="tab_menu" id="returnWait">
+					<a href="javascript:void(0)" class="type">반납대기(<span id="return_cnt">4</span>)</a>
 				</li>
-				<li class="tab_menu" id="approved">
-					<a href="javascript:void(0);" class="type">승인</a>
-				</li>
-				<li class="tab_menu" id="approvalReject">
-					<a href="javascript:void(0);" class="type">반려</a>
+				<li class="tab_menu" id="returned">
+					<a href="javascript:void(0)" class="type">반납완료</a>
 				</li>
 			</ul>
-			<%-- 
-			<div>
+			<div class="tab_page">
+				<%-- 
 				<div class="content_title">
 					<!-- Title -->
-					<form id="booking_acknowledge_frm">
-						<input type="hidden" name="category_no" value="">
-						<input type="hidden" name="resource_no" value="" id="resource_no_hidden">
-						<input type="hidden" name="sort_type" value="name" id="sort_type_hidden">
-						<input type="hidden" name="sort_asc" value="asc" id="sort_asc_hidden">
+					<form id="booking_return_frm">
 						<fieldset>
+							<input type="hidden" name="resource_no" value="" id="resource_no_hidden">
+							<input type="hidden" name="sort_type" value="" id="sort_type_hidden">
+							<input type="hidden" name="sort_asc" value="" id="sort_asc_hidden">
 							<div class="fl pdt_10">
-								<div id="ackowledge_btn_list_div">
+								<div id="return_btn_list_div">
 									<span class="detail_select" style="padding-right: 6px;">
 										<!-- 
-										<label style="margin-left: -10px"><input type="checkbox" id="chkAll" onclick="bookingAcknowledge.setAllCheck();" title="항목 선택"></label>
+										<label style="margin-left: -10px"><input type="checkbox" id="all_ck" onclick="bookingReturn.setAllCheck();" title="항목 선택"></label>
+										<span id="checked_cnt_span" class="check_visible hide" style="padding-right: 20px;">0</span>
 										 -->
 									</span>
-									<span class="detail_select" style="padding-right: 6px;" id="listCnt"></span>
 									<span class="detail_select check_not_visible">
-										<a href="javascript:void(0)" onclick="bookingCommon.showDropdownList('category_list_ul', bookingAcknowledge.hideDropdownList, false);">
-												
+										<a href="javascript:void(0)" onclick="bookingCommon.showDropdownList('category_list_ul', bookingReturn.hideDropdownList, false);">
+											
 											보기:
 											<span id="dropdown_status_text">모두</span>
 											<img src="<%= ctxPath%>/resources/image/icon/btn_drop.gif" alt="옵션 드롭다운 메뉴 열기" class="open_drop">
 											
 										</a>
 									</span>
-									<span class="detail_select">
-										<a href="javascript:void(0)" class="booking_del_btn hide">삭제</a>
+									<span class="detail_select check_not_visible">
+										<!-- <a href="javascript:void(0)" onclick="bookingReturn.excelDownload();">다운로드</a> -->
+									</span>
+									<span class="detail_select check_visible hide">
+										<a href="javascript:void(0)" class="booking_return_layer_btn return_batch_btn">반납 확인</a>
 									</span>
 								</div>
 								<div class="dropdown" style="left: 15px; top: 18px;">
@@ -186,8 +154,9 @@ $(document).ready(function() {
 								</div>
 							</div>
 							<!-- 수정필) 시간되면... 검색 -->
-							<!-- <div class="fr" style="display: flex; align-items: center; gap: 10px;">
-								<a href="javascript:void(0)" id="btn_search_undo" class="search_bt fl hide" style="margin: 6px 10px 0 0;">
+							<!-- 
+							<div class="fr">
+								<a href="javascript:void(0)" id="btn_search_undo" class="search_bt fl hide" style="margin: 6px 10px 0 0;" onclick="">
 									<span class="sp_menu searchCancel"></span>
 									검색 취소
 								</a>
@@ -202,31 +171,24 @@ $(document).ready(function() {
 											</span>
 										</fieldset>
 									</div>
-								</div> -->
-								<!-- 수정필) 시간되면... 엑셀다운로드 -->
-								<!-- <span>
-									<button class="excel-button" type="button" onclick="bookingAcknowledge.excelDownload();">
-										<img src="https://static.hiworks.com/hr/svg/xls.svg" alt="download excel">
-									</button>
-								</span> -->
+								</div>
 							</div>
+							 -->
 						</fieldset>
 					</form>
-				</div> 
-				--%>
-				
+				</div>
+ 				--%>
 				<div class="pdt_20">
-					<table class="tableType01 rs-table">
+					<table class="tableType01 rs-table" id="return_list_table">
 						<colgroup>
 							<col width="35">
 							<col width="">
 							<col width="">
 							<col width="">
 							<col width="30%">
-							<c:if test='${requestScope.type != "approvalWait"}'>
+							<c:if test='${requestScope.type == "returnWait"}'>
 							<col width="">
 							</c:if>
-							<col width="">
 						</colgroup>
 						<thead>
 							<tr>
@@ -243,64 +205,77 @@ $(document).ready(function() {
 										<!-- <span class="icon down" sort_asc="asc"></span> -->
 									</a>
 								</th>
-								<th scope="col" width="15%">
+								<th scope="col">
 									<a href="javascript:void(0);" class="sort booking_sort" sort_type="resource">
 										자원
 										<!-- <span class="icon down" sort_asc="asc"></span> -->
-									</a>
 								</th>
-								<th scope="col" width="25%">
+								<th scope="col">
 									<a href="javascript:void(0);" class="sort booking_sort" sort_type="booking_date">
 										예약 시간
 										<!-- <span class="icon down" sort_asc="asc"></span> -->
 									</a>
 								</th>
-								<c:if test='${requestScope.type != "approvalWait"}'>
-								<th scope="col" id="updateTime" type="hidden" class="">
-									<a href="javascript:void(0);" class="sort booking_sort" sort_type="approval_date">
-										결재 시간
-										<!-- <span class="icon down" sort_asc="asc"></span> -->
-									</a>
-								</th>
-								</c:if>
+								<c:if test='${requestScope.type == "returnWait"}'>
 								<th scope="col">설정</th>
+								</c:if>
 							</tr>
 						</thead>
-						<tbody id="booking_list_tbody">
+						<tbody id="return_list_tbody">
 						
 							<c:if test="${not empty requestScope.reservationList || fn:length(requestScope.reservationList) > 0}">
 							<c:forEach var="reservationvo" items="${requestScope.reservationList}">
-							<tr>
-								<td>
-									<!-- 
-									<label for=""><input type="checkbox" id="rsvResourceId_check"></label>
-									 -->
-								</td>
-								<td>${reservationvo.rsvEmpName} (${reservationvo.rsvEmpEmail})</td>
-								<td>${reservationvo.resourceCategoryName}</td>
-								<td>${reservationvo.resourceName}</td>
-								<td>${reservationvo.rsvStartDayTime} ~ ${reservationvo.rsvEndDayTime}</td>
-								<c:if test='${requestScope.type != "approvalWait"}'>
-								<td>${reservationvo.approvalDay}</td>
-								</c:if>
-								<td>
-									<c:if test='${requestScope.type == "approvalWait"}'>
-									<button type="button" name="button" class="weakblue booking_acknowledge_btn" onclick="rsvApproveModalOpen()">승인</button>
-									<span class="grey_bar">|</span>
-									<button type="button" name="button" class="weakblue booking_reject_btn" onclick="rsvRejectModalOpen()">반려</button>
-									<span class="grey_bar">|</span>
+								<tr>
+									<td>
+										<!-- 
+										<label for=""><input type="checkbox" name="" value="19215"></label>
+										 -->
+									</td>
+									<td>${reservationvo.rsvEmpName} (${reservationvo.rsvEmpEmail})</td>
+									<td>${reservationvo.resourceCategoryName}</td>
+									<td>${reservationvo.resourceName}</td>
+									<td>${reservationvo.rsvStartDayTime} ~ ${reservationvo.rsvEndDayTime}</td>
+									<c:if test='${requestScope.type == "returnWait"}'>
+									<td>
+										<button type="button" name="button" class="weakblue booking_return_layer_btn" onclick="returnRsourceModalOpen()">반납</button>
+										<span class="grey_bar">|</span>
+										<button type="button" name="button" class="weakblue rsv_detail_view_btn" id="${reservationvo.rsvResourceId}" onclick="reservation_info_detail_open(this.id)">상세보기</button>
+									</td>
 									</c:if>
-									<button type="button" name="button" class="weakblue rsv_detail_view_btn" id="${reservationvo.rsvResourceId}" onclick="reservation_info_detail_open(this.id)">상세보기</button>
-								</td>
-							</tr>
+								</tr>
 							</c:forEach>
 							</c:if>
 							<c:if test="${empty requestScope.reservationList || fn:length(requestScope.reservationList) == 0}">
 								<tr>
-									<td colspan="6" class="center">등록된 예약이 없습니다.</td>
+									<td colspan="6" class="center">반납 대기 리스트가 없습니다.</td>
 								</tr>
 							</c:if>
-							
+							<!-- 
+							<tr>
+								<td>
+									<label for=""><input type="checkbox" name="" value="19215"></label>
+								</td>
+								<td>김이사(kim)</td>
+								<td>법인 차량</td>
+								<td>차량(4인)</td>
+								<td>2023-12-01 06:30 ~ 2023-12-01 17:00</td>
+								<td>
+									<button type="button" name="button" class="weakblue booking_return_layer_btn" booking_no="19215">반납 확인</button>
+								</td>
+							</tr>
+							<tr>
+								<td>
+									<label for=""><input type="checkbox" name="" value="19226"></label>
+								</td>
+								<td>대표이사(ceo)</td>
+								<td>법인 차량</td>
+								<td>차량(4인)</td>
+								<td>2023-12-01 03:00 ~ 2023-12-01 04:30</td>
+								<td>
+									<button type="button" name="button" class="weakblue booking_return_layer_btn" booking_no="19226">반납 확인</button>
+								</td>
+							</tr>
+							 -->
 						</tbody>
 					</table>
 					<!-- 수정필 페이지바 만들 거임 ... ?
@@ -314,15 +289,12 @@ $(document).ready(function() {
 				<div class="pdt_20">
 					<p>
 						총
-						<span id="total_cnt">${requestScope.totalCount}</span> 
+						<span id="total_cnt">${requestScope.totalCount}</span>
 						개
 					</p>
 				</div>
 			</div>
-			
 		</div>
 		<!-- Contents End-->
 	</div>
-	<!-- 예약 리스트 생성 -->
-
 </div>
